@@ -1,0 +1,13 @@
+package ru.ingredients.models;
+
+public enum Function {
+    EMULSIFYING_LAMELLAR,
+    EMULSIFYING_DIRECT,
+    EMULSIFYING_REVERSE,
+    ANTIOXIDANT,
+    MOISTURIZER,
+    EXFOLIANT,
+    EMULSIFYING,
+    EMOLLIENT,
+    PERFUMING
+}
