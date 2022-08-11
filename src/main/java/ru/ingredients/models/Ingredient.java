@@ -1,35 +1,42 @@
 package ru.ingredients.models;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class Ingredient {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-//    @Column(name = "id", nullable = false)
+    @Column(name = "id", nullable = false)
     private Long id;
-
     String inci;
     String translation;
     String description;
     String percent;
     String contraindication;
+    @ManyToMany
+    Set<Function> functions = new HashSet<>();
+
+    public Set<Function> getFunctions() {
+        return functions;
+    }
+
+    public Ingredient setFunctions(Set<Function> functions) {
+        this.functions = functions;
+        return this;
+    }
 
     public Ingredient() {
     }
 
-    public Ingredient(String inci, String translation, List<Function> functions) {
-        this.inci = inci;
-        this.translation = translation;
-    }
-
-    public Ingredient(String inci, String translation, String description, String percent, String contraindication) {
+    public Ingredient(String inci, String translation, String description, Set<Function> functions, String percent, String contraindication) {
         this.inci = inci;
         this.translation = translation;
         this.description = description;
         this.percent = percent;
         this.contraindication = contraindication;
+        this.functions = functions;
     }
 
     public Long getId() {
@@ -83,5 +90,15 @@ public class Ingredient {
     public Ingredient setContraindication(String contraindication) {
         this.contraindication = contraindication;
         return this;
+    }
+
+    public void addFunction(Function p) {
+        this.functions.add(p);
+        p.getIngredients().add(this);
+    }
+
+    public void removeFunction(Function p) {
+        this.functions.remove(p);
+        p.getIngredients().remove(this);
     }
 }
