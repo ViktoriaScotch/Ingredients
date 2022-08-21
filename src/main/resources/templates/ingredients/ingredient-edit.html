@@ -11,12 +11,13 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"/>
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
 
 </head>
 <body class="d-flex h-100 text-center text-white bg-dark">
 
 <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
-    <header th:insert="blocks/header :: header"></header>
+    <header th:replace="blocks/header :: header"></header>
 
     <div class="container mt-5 mb-5">
         <h1>Редактирование ингредиента</h1>
@@ -26,7 +27,7 @@
                 <input type="text" th:value="${el.translation}" name="translation" placeholder="Введите наименование на русском"
                        class="form-control"><br>
                 <textarea name="description" placeholder="Введите описание" class="form-control"  th:text="${el.description}"></textarea><br>
-                <select name="functionsId[]" class="js-example-basic-multiple js-states form-control" multiple="multiple">
+                <select name="functionsId[]" class="js-example-basic-multiple form-select" multiple="multiple">
                     <option th:each="func : ${functions}"
                             th:value="${func.getId}" th:text="${func.getName}"></option>
                 </select><br>
@@ -39,7 +40,7 @@
         </div>
     </div>
 
-    <footer th:insert="blocks/footer :: footer"></footer>
+    <footer th:replace="blocks/footer :: footer"></footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
@@ -56,6 +57,9 @@
 <script type="text/javascript">
 $('.js-example-basic-multiple').val([[${ingFunctions}]]).trigger('change').select2({
     placeholder: "Выберите функции",
+    theme: "bootstrap-5",
+    width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
+    closeOnSelect: false,
 });
 </script>
 
