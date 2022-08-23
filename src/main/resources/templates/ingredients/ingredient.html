@@ -24,7 +24,7 @@
     </div>
 
     <div class="container">
-        <div th:each="el : ${ing}" class="alert alert-info mt-2">
+        <div th:each="el : ${ing}" class="alert alert-secondary mt-2">
             <h1 th:text="${el.translation}"/>
             <p th:text="${el.inci}"/>
             <p><b>Функции: </b><span th:text="${#strings.arrayJoin(ingFunctions,', ')}"/></p>
@@ -32,8 +32,8 @@
             <p th:text="${el.percent}"/>
             <p th:text="${el.contraindication}"/>
             <form th:action="'/ingredient/' + ${el.id} + '/remove'" method="post">
-                <a th:href="'/ingredient/' + ${el.id} + '/edit'" class="btn btn-warning">Редактировать</a>
-                <button class="btn btn-warning" type="submit">Удалить</button>
+                <a th:href="'/ingredient/' + ${el.id} + '/edit'" class="btn btn-secondary">Редактировать</a>
+                <button class="btn btn-secondary" type="submit">Удалить</button>
             </form>
         </div>
     </div>
