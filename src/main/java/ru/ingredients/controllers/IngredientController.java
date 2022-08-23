@@ -42,7 +42,7 @@ public class IngredientController {
         for (Long funcId : functionsId) {
             functionRepository.findById(funcId).ifPresent(ingFunctions::add);
         }
-        Ingredient ing = new Ingredient(inci, translation, description, ingFunctions, percent, contraindication);
+        Ingredient ing = new Ingredient(inci.toLowerCase(), translation, description, ingFunctions, percent, contraindication);
         ingredientRepository.save(ing);
         return "redirect:/ingredients";
     }
