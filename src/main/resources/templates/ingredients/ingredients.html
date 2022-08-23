@@ -13,21 +13,25 @@
 <body class="d-flex h-100 text-center text-white bg-dark">
 
 <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
-    <header th:insert="blocks/header :: header"></header>
+    <header th:replace="blocks/header :: header"></header>
 
-    <div class="container mt-5">
+    <div class="container mt-5 w-50">
         <h1>Ингредиенты</h1>
         <p class="lead">
-            <a href="/ingredient/add" class="btn btn-lg fw-bold border-white bg-white mt-2">Добавить
+            <a href="/ingredient/add" class="btn btn-lg fw-bold border-white bg-white mt-4">Добавить
                 ингредиент</a>
         </p>
-        <div th:each="el : ${ingredients}" class="alert alert-info mt-2">
-            <a th:href="'/ingredient/' + ${el.id}" th:text="${el.translation}" class="btn"/>
-            <p th:text="${el.inci}"/>
+        <div class="container d-flex flex-wrap justify-content-center mt-4">
+            <a th:href="'/ingredient/' + ${el.id}" th:each="el : ${ingredients}" class="mb-2 text-decoration-none">
+                <div class="alert alert-light mx-2">
+                    <p th:text="${el.translation}" class="h4 "/>
+                    <p th:text="${el.inci}" class=""/>
+                </div>
+            </a>
         </div>
     </div>
 
-    <footer th:insert="blocks/footer :: footer"></footer>
+    <footer th:replace="blocks/footer :: footer"></footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"

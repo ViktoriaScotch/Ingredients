@@ -13,9 +13,17 @@
 <body class="d-flex h-100 text-white bg-dark">
 
 <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
-    <header th:insert="blocks/header :: header"></header>
+    <header th:replace="blocks/header :: header"></header>
 
-    <div class="container mt-5">
+    <div class="container mt-5 mb-3">
+        <a th:href="'/ingredients'" class="btn btn-outline-secondary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 2 16 16">
+                <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"></path>
+            </svg>
+        </a>
+    </div>
+
+    <div class="container">
         <div th:each="el : ${ing}" class="alert alert-info mt-2">
             <h1 th:text="${el.translation}"/>
             <p th:text="${el.inci}"/>
@@ -23,18 +31,14 @@
             <p><b>Описание: </b><span th:text="${el.description}"/></p>
             <p th:text="${el.percent}"/>
             <p th:text="${el.contraindication}"/>
-            <a th:href="'/ingredient/' + ${el.id} + '/edit'" class="btn btn-warning">Редактировать</a><br><br>
             <form th:action="'/ingredient/' + ${el.id} + '/remove'" method="post">
+                <a th:href="'/ingredient/' + ${el.id} + '/edit'" class="btn btn-warning">Редактировать</a>
                 <button class="btn btn-warning" type="submit">Удалить</button>
             </form>
         </div>
     </div>
 
-    <div class="container">
-        <a th:href="'/ingredients'" class="btn btn-primary">Назад</a>
-    </div>
-
-    <footer th:insert="blocks/footer :: footer"></footer>
+    <footer th:replace="blocks/footer :: footer"></footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"

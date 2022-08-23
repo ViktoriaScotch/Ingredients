@@ -11,24 +11,29 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"/>
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
 </head>
-<body class="d-flex h-100 text-center text-white bg-dark">
+<body class="d-flex h-100 text-center bg-dark">
 
 <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
-    <header th:insert="blocks/header :: header"></header>
+    <header th:replace="blocks/header :: header"></header>
 
-    <div class="container mt-5 mb-5">
-        <div class="container">
-            <a th:href="'/ingredients'" class="btn btn-primary">Назад</a>
+    <div class="d-flex flex-column container mt-5 mb-5">
+        <div class="align-self-start">
+            <a th:href="'/ingredients'" class="btn btn-outline-secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 2 16 16">
+                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"></path>
+                </svg>
+        </a>
         </div>
 
-        <h1>Добавление ингредиента</h1>
-        <form action="/ingredient/add" method="post">
+        <h1 class="text-white">Добавление ингредиента</h1>
+        <form class="mt-4" action="/ingredient/add" method="post">
             <input type="text" name="inci" placeholder="Введите наименование по INCI" class="form-control"><br>
             <input type="text" name="translation" placeholder="Введите торговое наименование"
                    class="form-control"><br>
             <textarea name="description" placeholder="Введите описание" class="form-control"></textarea><br>
-            <select name="functionsId[]" class="js-example-basic-multiple js-states form-control" multiple="multiple">
+            <select name="functionsId[]" class="js-example-basic-multiple form-select" multiple="multiple">
                 <option th:each="func : ${functions}"
                         th:value="${func.getId}" th:text="${func.getName}"></option>
             </select><br>
@@ -38,7 +43,7 @@
         </form>
     </div>
 
-    <footer th:insert="blocks/footer :: footer"></footer>
+    <footer th:replace="blocks/footer :: footer"></footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
@@ -49,12 +54,17 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.5/umd/popper.min.js"
         integrity="sha512-8cU710tp3iH9RniUh6fq5zJsGnjLzOWLWdZqBMLtqaoZUA6AWIE34lwMB3ipUNiTBP5jEZKY95SfbNnQ8cCKvA=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.full.js"></script>
+
 
 <script type="text/javascript">
 $('.js-example-basic-multiple').select2({
     placeholder: "Выберите функции",
+    theme: "bootstrap-5",
+    width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
+    closeOnSelect: false,
 });
 </script>
 
