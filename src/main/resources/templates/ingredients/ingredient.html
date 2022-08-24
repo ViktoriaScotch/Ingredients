@@ -31,7 +31,7 @@
             <p><b>Описание: </b><span th:text="${el.description}"/></p>
             <p th:text="${el.percent}"/>
             <p th:text="${el.contraindication}"/>
-            <form th:action="'/ingredient/' + ${el.id} + '/remove'" method="post">
+            <form th:if="${isAdmin}" th:action="'/ingredient/' + ${el.id} + '/remove'" method="post">
                 <a th:href="'/ingredient/' + ${el.id} + '/edit'" class="btn btn-secondary">Редактировать</a>
                 <button class="btn btn-secondary" type="submit">Удалить</button>
             </form>

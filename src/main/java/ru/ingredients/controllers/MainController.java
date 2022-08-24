@@ -4,8 +4,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import javax.servlet.http.HttpServletRequest;
+
 @Controller
-public class HomeController {
+public class MainController {
 
     @GetMapping("/about")
     public String about(Model model) {
@@ -17,5 +19,11 @@ public class HomeController {
     public String products(Model model) {
         model.addAttribute("title", "Здесь будет страница с продуктами");
         return "products/products";
+    }
+
+    @GetMapping("/login")
+    public String login(Model model, HttpServletRequest request) {
+        model.addAttribute("isAuthorized", request.isUserInRole("ROLE_ADMIN"));
+        return "login/login";
     }
 }
