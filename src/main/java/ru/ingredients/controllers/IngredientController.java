@@ -12,6 +12,7 @@ import ru.ingredients.models.Ingredient;
 import ru.ingredients.repo.FunctionRepository;
 import ru.ingredients.repo.IngredientRepository;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,9 +24,10 @@ public class IngredientController {
     private FunctionRepository functionRepository;
 
     @GetMapping("/ingredients")
-    public String ingredients(Model model) {
+    public String ingredients(Model model, HttpServletRequest request) {
         Iterable<Ingredient> ingredients = ingredientRepository.findAll();
         model.addAttribute("ingredients", ingredients);
+        model.addAttribute("isAdmin", request.isUserInRole("ROLE_ADMIN"));
         return "ingredients/ingredients";
     }
 
@@ -48,7 +50,7 @@ public class IngredientController {
     }
 
     @GetMapping("/ingredient/{id}")
-    public String ingredientMore(@PathVariable(value = "id") long id, Model model) {
+    public String ingredientMore(@PathVariable(value = "id") long id, Model model, HttpServletRequest request) {
         if (!ingredientRepository.existsById(id)) {
             return "redirect:/ingredients";
         }
@@ -59,6 +61,8 @@ public class IngredientController {
 
         List<String> ingFunctions = ing.get(0).getFunctions().stream().map(Function::getName).collect(Collectors.toList());
         model.addAttribute("ingFunctions", ingFunctions);
+
+        model.addAttribute("isAdmin", request.isUserInRole("ROLE_ADMIN"));
         return "ingredients/ingredient";
     }
 
