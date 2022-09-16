@@ -3,108 +3,141 @@ package ru.ingredients.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import ru.ingredients.models.Function;
 import ru.ingredients.models.Ingredient;
+import ru.ingredients.models.Percent;
 import ru.ingredients.repo.FunctionRepository;
 import ru.ingredients.repo.IngredientRepository;
+import ru.ingredients.repo.PercentRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
+@RequestMapping("/ingredients")
 public class IngredientController {
     @Autowired
     private IngredientRepository ingredientRepository;
     @Autowired
     private FunctionRepository functionRepository;
+    @Autowired
+    private PercentRepository percentRepository;
 
-    @GetMapping("/ingredients")
-    public String ingredients(Model model, HttpServletRequest request) {
-        Iterable<Ingredient> ingredients = ingredientRepository.findAll();
+    @ModelAttribute("allFunctions")
+    public List<Function> allFunctions() {
+        return (List<Function>) this.functionRepository.findAll();
+    }
+
+    @GetMapping("")
+    public String ingredients(Model model, @RequestParam(required = false) String q, HttpServletRequest request) {
+        Iterable<Ingredient> ingredients = q == null || q.isEmpty() ? ingredientRepository.findAll() : ingredientRepository.searchIngredients(q.toLowerCase());
         model.addAttribute("ingredients", ingredients);
         model.addAttribute("isAdmin", request.isUserInRole("ROLE_ADMIN"));
+        model.addAttribute("ingredientsStr", ingredientRepository.getAllNames());
         return "ingredients/ingredients";
     }
 
-    @GetMapping("/ingredient/add")
-    public String ingredientsAdd(Model model) {
-        Iterable<Function> functions = functionRepository.findAll();
-        model.addAttribute("functions", functions);
-        return "ingredients/ingredient-add";
+    @GetMapping("/new")
+    public String ingredientsAdd(@ModelAttribute("ingredient") Ingredient ingredient) {
+        return "ingredients/ingredients-new";
     }
 
-    @PostMapping("/ingredient/add")
-    public String ingredientsPost(@RequestParam String inci, @RequestParam String translation, @RequestParam String description, @RequestParam(value = "functionsId[]") Long[] functionsId, @RequestParam String percent, @RequestParam String contraindication, Model model) {
-        Set<Function> ingFunctions = new HashSet<>();
-        for (Long funcId : functionsId) {
-            functionRepository.findById(funcId).ifPresent(ingFunctions::add);
+    @RequestMapping(value = "/new", params = {"addPercent"})
+    public String addPercent(@ModelAttribute("ingredient") Ingredient ingredient) {
+        ingredient.getPercents().add(new Percent());
+        return "ingredients/ingredients-new";
+    }
+
+    @RequestMapping(value = "/new", params = {"removePercent"})
+    public String removePercent(@ModelAttribute("ingredient") Ingredient ingredient, final HttpServletRequest req) {
+        final int percentIndex = Integer.parseInt(req.getParameter("removePercent"));
+        ingredient.getPercents().remove(percentIndex);
+        return "ingredients/ingredients-new";
+    }
+
+    @PostMapping("/new")
+    public String saveIngredient(@ModelAttribute("ingredient") Ingredient ingredient, BindingResult bindingResult, final ModelMap model) {
+        if (bindingResult.hasErrors()) {
+            return "ingredients/ingredients-new";
         }
-        Ingredient ing = new Ingredient(inci.toLowerCase(), translation, description, ingFunctions, percent, contraindication);
-        ingredientRepository.save(ing);
+        ingredient.setInci(ingredient.getInci().toLowerCase());
+        ingredient.setTradeName(ingredient.getTradeName().toLowerCase());
+        ingredient.setOtherNames(ingredient.getOtherNames().stream()
+                .map(String::toLowerCase)
+                .collect(Collectors.toSet()));
+        for (Percent percent : ingredient.getPercents()) {
+            percentRepository.save(percent);
+        }
+        ingredientRepository.save(ingredient);
+        model.clear();
         return "redirect:/ingredients";
     }
 
-    @GetMapping("/ingredient/{id}")
-    public String ingredientMore(@PathVariable(value = "id") long id, Model model, HttpServletRequest request) {
-        if (!ingredientRepository.existsById(id)) {
+    @GetMapping("/{id}")
+    public String ingredientMore(@PathVariable(value = "id") long id, Model model, HttpServletRequest req) {
+        if (ingredientRepository.findById(id).isEmpty()) {
             return "redirect:/ingredients";
         }
-        Optional<Ingredient> optionalIng = ingredientRepository.findById(id);
-        ArrayList<Ingredient> ing = new ArrayList<>();
-        optionalIng.ifPresent(ing::add);
+        Ingredient ing = ingredientRepository.findById(id).get();
         model.addAttribute("ing", ing);
 
-        List<String> ingFunctions = ing.get(0).getFunctions().stream().map(Function::getName).collect(Collectors.toList());
-        model.addAttribute("ingFunctions", ingFunctions);
+        List<String> ingFuncNames = ing.getFunctions().stream().map(Function::getName).collect(Collectors.toList());
+        model.addAttribute("ingFunctions", ingFuncNames);
 
-        model.addAttribute("isAdmin", request.isUserInRole("ROLE_ADMIN"));
-        return "ingredients/ingredient";
+        model.addAttribute("isAdmin", req.isUserInRole("ROLE_ADMIN"));
+        return "ingredients/ingredients-about";
     }
 
-    @GetMapping("/ingredient/{id}/edit")
-    public String ingredientEdit(@PathVariable(value = "id") long id, Model model) {
-        if (!ingredientRepository.existsById(id)) {
-            return "redirect:/ingredients";
-        }
-        Optional<Ingredient> optionalIng = ingredientRepository.findById(id);
-        ArrayList<Ingredient> ing = new ArrayList<>();
-        optionalIng.ifPresent(ing::add);
-        model.addAttribute("ing", ing);
-
-        List<Long> ingFunctions = ing.get(0).getFunctions().stream().map(Function::getId).collect(Collectors.toList());
-        model.addAttribute("ingFunctions", ingFunctions);
-
-        Iterable<Function> functions = functionRepository.findAll();
-        model.addAttribute("functions", functions);
-        return "ingredients/ingredient-edit";
-    }
-
-    @PostMapping("/ingredient/{id}/edit")
-    public String ingredientsUpdate(@PathVariable(value = "id") long id, @RequestParam String inci, @RequestParam String translation, @RequestParam String description, @RequestParam(value = "functionsId[]") Long[] functionsId, @RequestParam String percent, @RequestParam String contraindication, Model model) {
-        Ingredient ing = ingredientRepository.findById(id).orElseThrow();
-        Set<Function> ingFunctions = new HashSet<>();
-        for (Long funcId : functionsId) {
-            functionRepository.findById(funcId).ifPresent(ingFunctions::add);
-        }
-        ing.setInci(inci)
-                .setTranslation(translation)
-                .setDescription(description)
-                .setFunctions(ingFunctions)
-                .setPercent(percent)
-                .setContraindication(contraindication);
-        ingredientRepository.save(ing);
-        return "redirect:/ingredient/{id}";
-    }
-
-    @PostMapping("/ingredient/{id}/remove")
+    @DeleteMapping("/{id}")
     public String ingredientsDelete(@PathVariable(value = "id") long id, Model model) {
         Ingredient ing = ingredientRepository.findById(id).orElseThrow();
         ingredientRepository.delete(ing);
         return "redirect:/ingredients";
+    }
+
+    @GetMapping("/{id}/edit")
+    public String ingredientEdit(@PathVariable(value = "id") long id, Ingredient ing, final BindingResult bindingResult, Model model) {
+        if (ingredientRepository.findById(id).isEmpty()) {
+            return "redirect:/ingredients";
+        }
+        ing = ingredientRepository.findById(id).get();
+        model.addAttribute("ingredient", ing);
+        model.addAttribute("ingFunctions", getIndFuncIds(ing));
+        return "ingredients/ingredients-edit";
+    }
+
+    @RequestMapping(value = "/{id}/edit", params = {"addPercent"})
+    public String addPercentEdit(@PathVariable(value = "id") long id, final Ingredient ing, final BindingResult bindingResult, Model model) {
+        ing.getPercents().add(new Percent());
+        model.addAttribute("ingFunctions", getIndFuncIds(ing));
+        return "ingredients/ingredients-edit";
+    }
+
+    @RequestMapping(value = "/{id}/edit", params = {"removePercent"})
+    public String removePercentEdit(@PathVariable(value = "id") long id, final Ingredient ing, final BindingResult bindingResult, Model model, final HttpServletRequest req) {
+        final int percentIndex = Integer.parseInt(req.getParameter("removePercent"));
+        ing.getPercents().remove(percentIndex);
+        model.addAttribute("ingFunctions", getIndFuncIds(ing));
+        return "ingredients/ingredients-edit";
+    }
+
+    @PatchMapping(value = "/{id}/edit", params = {"save"})
+    public String ingredientsUpdate(@PathVariable(value = "id") long id, final Ingredient ing, final BindingResult bindingResult, final ModelMap model) {
+        if (bindingResult.hasErrors()) {
+            return "ingredients/ingredients-edit";
+        }
+        for (Percent percent : ing.getPercents()) {
+            percentRepository.save(percent);
+        }
+        ingredientRepository.save(ing);
+        return "redirect:/ingredients/{id}";
+    }
+
+    private List<Long> getIndFuncIds(Ingredient ing) {
+        return ing.getFunctions().stream().map(Function::getId).collect(Collectors.toList());
     }
 }

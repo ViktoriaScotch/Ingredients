@@ -49,20 +49,26 @@ public class DecodingController {
         List<String> decoding = new ArrayList<>();
         Map<String, List<String>> ingByFunc = new HashMap<>();
         for (String ing : ingText) {
-            if (!ingredientRepository.findByInci(ing).isEmpty()) {
-                Ingredient ingredient = ingredientRepository.findByInci(ing).get(0);
-                decoding.add(ingredient.getTranslation());
+            Ingredient ingredient = ingredientRepository.findByInci(ing);
+            if (ingredient == null) {
+                ingredient = ingredientRepository.findByTradeName(ing);
+            }
+            if (ingredient == null) {
+                ingredient = ingredientRepository.findByOtherNames(ing);
+            }
+            if (ingredient == null) {
+                decoding.add(ing + " ???");
+            } else {
+                decoding.add(ingredient.getTradeName());
                 for (String func : ingredient.getFunctions().stream().map(Function::getName).collect(Collectors.toList())) {
                     if (ingByFunc.containsKey(func)) {
                         List<String> elements = new ArrayList<>(ingByFunc.get(func));
-                        elements.add(ingredient.getTranslation());
+                        elements.add(ingredient.getTradeName());
                         ingByFunc.put(func, elements);
                     } else {
-                        ingByFunc.put(func, List.of(ingredient.getTranslation()));
+                        ingByFunc.put(func, List.of(ingredient.getTradeName()));
                     }
                 }
-            } else {
-                decoding.add(ing + " ???");
             }
         }
         model.addAttribute("text", text);

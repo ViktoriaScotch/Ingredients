@@ -9,8 +9,10 @@ public class Function {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    String name;
-    String description;
+
+    private String name;
+
+    private String description;
 
     @ManyToMany(mappedBy="functions")
     private Set<Ingredient> ingredients = new HashSet<>();
