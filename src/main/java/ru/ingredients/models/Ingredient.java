@@ -1,7 +1,9 @@
 package ru.ingredients.models;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -10,32 +12,34 @@ public class Ingredient {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
     private Long id;
-    String inci;
-    String translation;
-    String description;
-    String percent;
-    String contraindication;
+
+    private String inci;
+
+    private String tradeName;
+
+    private String description;
+
+    private String contraindication;
+
+    @OneToMany
+    private List<Percent> percents = new ArrayList<>();
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    private Set<String> otherNames = new HashSet<>();
+
     @ManyToMany
-    Set<Function> functions = new HashSet<>();
-
-    public Set<Function> getFunctions() {
-        return functions;
-    }
-
-    public Ingredient setFunctions(Set<Function> functions) {
-        this.functions = functions;
-        return this;
-    }
+    private Set<Function> functions = new HashSet<>();
 
     public Ingredient() {
     }
 
-    public Ingredient(String inci, String translation, String description, Set<Function> functions, String percent, String contraindication) {
+    public Ingredient(String inci, String tradeName, String description, Set<String> otherNames, Set<Function> functions, List<Percent> percents, String contraindication) {
         this.inci = inci;
-        this.translation = translation;
+        this.tradeName = tradeName;
         this.description = description;
-        this.percent = percent;
+        this.percents = percents;
         this.contraindication = contraindication;
+        this.otherNames = otherNames;
         this.functions = functions;
     }
 
@@ -56,12 +60,12 @@ public class Ingredient {
         return this;
     }
 
-    public String getTranslation() {
-        return translation;
+    public String getTradeName() {
+        return tradeName;
     }
 
-    public Ingredient setTranslation(String translation) {
-        this.translation = translation;
+    public Ingredient setTradeName(String tradeName) {
+        this.tradeName = tradeName;
         return this;
     }
 
@@ -74,12 +78,12 @@ public class Ingredient {
         return this;
     }
 
-    public String getPercent() {
-        return percent;
+    public List<Percent> getPercents() {
+        return percents;
     }
 
-    public Ingredient setPercent(String percent) {
-        this.percent = percent;
+    public Ingredient setPercents(List<Percent> percents) {
+        this.percents = percents;
         return this;
     }
 
@@ -92,13 +96,21 @@ public class Ingredient {
         return this;
     }
 
-    public void addFunction(Function p) {
-        this.functions.add(p);
-        p.getIngredients().add(this);
+    public Set<String> getOtherNames() {
+        return otherNames;
     }
 
-    public void removeFunction(Function p) {
-        this.functions.remove(p);
-        p.getIngredients().remove(this);
+    public Ingredient setOtherNames(Set<String> otherNames) {
+        this.otherNames = otherNames;
+        return this;
+    }
+
+    public Set<Function> getFunctions() {
+        return functions;
+    }
+
+    public Ingredient setFunctions(Set<Function> functions) {
+        this.functions = functions;
+        return this;
     }
 }

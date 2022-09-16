@@ -17,7 +17,7 @@ public class WebSecurityConfig {
     protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests()
-                .antMatchers("/ingredient/{id}/edit", "/ingredient/add", "/ingredient/{id}/remove")
+                .antMatchers("/ingredients/{id}/edit", "/ingredients/new")
                     .hasRole("ADMIN")
                     .and()
                 .formLogin()
