@@ -34,10 +34,13 @@ public class Ingredient {
     @ManyToMany
     private Set<Function> functions = new HashSet<>();
 
+    @ManyToMany
+    private Set<Category> categories = new HashSet<>();
+
     public Ingredient() {
     }
 
-    public Ingredient(String inci, String tradeName, String description, Set<String> otherNames, Set<Function> functions, List<Percent> percents, String contraindication) {
+    public Ingredient(String inci, String tradeName, String description, Set<String> otherNames, Set<Function> functions, Set<Category> categories, List<Percent> percents, String contraindication) {
         this.inci = inci;
         this.tradeName = tradeName;
         this.description = description;
@@ -45,6 +48,7 @@ public class Ingredient {
         this.contraindication = contraindication;
         this.otherNames = otherNames;
         this.functions = functions;
+        this.categories = categories;
     }
 
     public Long getId() {
@@ -115,6 +119,15 @@ public class Ingredient {
 
     public Ingredient setFunctions(Set<Function> functions) {
         this.functions = functions;
+        return this;
+    }
+
+    public Set<Category> getCategories() {
+        return categories;
+    }
+
+    public Ingredient setCategories(Set<Category> categories) {
+        this.categories = categories;
         return this;
     }
 }

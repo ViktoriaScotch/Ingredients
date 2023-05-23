@@ -34,17 +34,28 @@
             <h1 class="text-white">Добавление ингредиента</h1>
             <form class="mt-4" th:object="${ingredient}" th:method="post">
                 <input type="text" th:field="*{inci}" placeholder="Введите наименование по INCI" class="form-control"><br>
+
                 <input type="text" th:field="*{tradeName}" placeholder="Введите торговое наименование" class="form-control"><br>
+
                 <select th:field="*{otherNames}" class="js-example-tokenizer form-select" multiple="multiple">
                     <option th:each="name : *{otherNames}"
                             th:value="${name}" th:text="${name}"></option>
                 </select><br>
+
                 <textarea th:field="*{description}" placeholder="Введите описание" class="form-control"></textarea><br>
-                <select th:field="*{functions}" class="js-example-basic-multiple form-select" multiple="multiple">
+
+                <select th:field="*{functions}" class="multiple-functions form-select" multiple="multiple">
                     <option th:each="func : ${allFunctions}"
                             th:value="${func.getId}" th:text="${func.getName}"></option>
                 </select><br>
+
+                <select th:field="*{categories}" class="multiple-categories form-select" multiple="multiple">
+                    <option th:each="cat : ${allCategories}"
+                            th:value="${cat.getId}" th:text="${cat.getName}"></option>
+                </select><br>
+
                 <input type="text" th:field="*{contraindication}" placeholder="Введите противопоказания" class="form-control"><br>
+
                 <p class="text-white text-start">Введите эффективный процент ввода: </p>
                 <div class="row g-4 d-grid gap-2 d-md-flex justify-content-md-end" th:each="percent,percentStat : *{percents}">
                     <label for="min" class="text-white col-sm-1 col-form-label">от</label>
@@ -62,6 +73,7 @@
                         </button>
                     </div>
                 </div>
+
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start">
                     <button type="submit" name="addPercent" class="btn btn-light">Добавить строку</button>
                 </div>
@@ -87,8 +99,13 @@
 
 
     <script type="text/javascript">
-        $('.js-example-basic-multiple').select2({
+        $('.multiple-functions').select2({
             placeholder: "Выберите функции",
+            theme: "bootstrap-5",
+            width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
+        });
+        $('.multiple-categories').select2({
+            placeholder: "Выберите классы активов",
             theme: "bootstrap-5",
             width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
         });

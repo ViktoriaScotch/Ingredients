@@ -29,12 +29,20 @@
     <div class="container">
         <div class="alert alert-secondary mt-2">
             <h1 class="text-capitalize" th:text="${ing.tradeName}"></h1>
+
             <p class="text-capitalize fs-4" th:text="${ing.inci}"></p>
+
             <p th:if="${!ing.otherNames.empty}"><b>Также называется как: </b><span class="text-capitalize"
                                                   th:text="${#strings.arrayJoin(ing.otherNames,', ')}"></span></p>
-            <p th:if="${!ingFunctions.empty}"><b>Функции: </b><span th:text="${#strings.arrayJoin(ingFunctions,', ')}"></span></p>
+
+            <p th:if="${!ing.functions.empty}"><b>Функции: </b><span th:text="${#strings.arrayJoin(ing.functions.![name],', ')}"></span></p>
+
+            <p th:if="${!ing.functions.empty}"><b>Классы активов: </b><span th:text="${#strings.arrayJoin(ing.categories.![name],', ')}"></span></p>
+
             <p th:if="${!ing.description.empty}"><b>Описание: </b><span th:text="${ing.description}"></span></p>
+
             <p th:if="${!ing.contraindication.empty}" th:text="${ing.contraindication}"></p>
+
             <p th:if="${!ing.percents.empty}"><b>Эффективные проценты ввода: </b>
             <div th:each="percent : ${ing.percents}">
                     <b>от </b><span th:text="${percent.min}"></span>
@@ -42,6 +50,7 @@
                     <b>% </b><span th:if="${!percent.comment.empty}" th:text="' — ' + ${percent.comment}"></span>
                 </p>
             </div>
+
             <form th:if="${isAdmin}" th:action="'/ingredients/' + ${ing.id}" th:method="delete">
                 <a th:href="'/ingredients/' + ${ing.id} + '/edit'" class="btn btn-secondary">Редактировать</a>
                 <button class="btn btn-secondary" type="submit">Удалить</button>

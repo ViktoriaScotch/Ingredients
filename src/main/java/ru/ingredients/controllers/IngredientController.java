@@ -6,9 +6,11 @@ import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import ru.ingredients.models.Category;
 import ru.ingredients.models.Function;
 import ru.ingredients.models.Ingredient;
 import ru.ingredients.models.Percent;
+import ru.ingredients.repo.CategoryRepository;
 import ru.ingredients.repo.FunctionRepository;
 import ru.ingredients.repo.IngredientRepository;
 import ru.ingredients.repo.PercentRepository;
@@ -25,11 +27,18 @@ public class IngredientController {
     @Autowired
     private FunctionRepository functionRepository;
     @Autowired
+    private CategoryRepository categoryRepository;
+    @Autowired
     private PercentRepository percentRepository;
 
     @ModelAttribute("allFunctions")
     public List<Function> allFunctions() {
         return (List<Function>) this.functionRepository.findAll();
+    }
+
+    @ModelAttribute("allCategories")
+    public List<Category> allCategories() {
+        return (List<Category>) this.categoryRepository.findAll();
     }
 
     @GetMapping("")
@@ -85,9 +94,6 @@ public class IngredientController {
         Ingredient ing = ingredientRepository.findById(id).get();
         model.addAttribute("ing", ing);
 
-        List<String> ingFuncNames = ing.getFunctions().stream().map(Function::getName).collect(Collectors.toList());
-        model.addAttribute("ingFunctions", ingFuncNames);
-
         model.addAttribute("isAdmin", req.isUserInRole("ROLE_ADMIN"));
         return "ingredients/ingredients-about";
     }
@@ -106,14 +112,12 @@ public class IngredientController {
         }
         ing = ingredientRepository.findById(id).get();
         model.addAttribute("ingredient", ing);
-        model.addAttribute("ingFunctions", getIndFuncIds(ing));
         return "ingredients/ingredients-edit";
     }
 
     @RequestMapping(value = "/{id}/edit", params = {"addPercent"})
     public String addPercentEdit(@PathVariable(value = "id") long id, final Ingredient ing, final BindingResult bindingResult, Model model) {
         ing.getPercents().add(new Percent());
-        model.addAttribute("ingFunctions", getIndFuncIds(ing));
         return "ingredients/ingredients-edit";
     }
 
@@ -121,7 +125,6 @@ public class IngredientController {
     public String removePercentEdit(@PathVariable(value = "id") long id, final Ingredient ing, final BindingResult bindingResult, Model model, final HttpServletRequest req) {
         final int percentIndex = Integer.parseInt(req.getParameter("removePercent"));
         ing.getPercents().remove(percentIndex);
-        model.addAttribute("ingFunctions", getIndFuncIds(ing));
         return "ingredients/ingredients-edit";
     }
 
@@ -135,9 +138,5 @@ public class IngredientController {
         }
         ingredientRepository.save(ing);
         return "redirect:/ingredients/{id}";
-    }
-
-    private List<Long> getIndFuncIds(Ingredient ing) {
-        return ing.getFunctions().stream().map(Function::getId).collect(Collectors.toList());
     }
 }

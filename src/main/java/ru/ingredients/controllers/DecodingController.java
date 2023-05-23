@@ -6,6 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import ru.ingredients.models.Category;
 import ru.ingredients.models.Function;
 import ru.ingredients.models.Ingredient;
 import ru.ingredients.repo.FunctionRepository;
@@ -46,20 +47,23 @@ public class DecodingController {
         if (text != null) {
             ingText = Arrays.stream(text.split(", ")).map(String::toLowerCase).collect(Collectors.toList());
         }
+
         List<String> decoding = new ArrayList<>();
         Map<String, List<String>> ingByFunc = new HashMap<>();
+        Map<String, List<String>> ingByCat = new HashMap<>();
+        List<String> unknown = new ArrayList<>();
+        List<Ingredient> ingredients = new ArrayList<>();
+
         for (String ing : ingText) {
-            Ingredient ingredient = ingredientRepository.findByInci(ing);
-            if (ingredient == null) {
-                ingredient = ingredientRepository.findByTradeName(ing);
-            }
-            if (ingredient == null) {
-                ingredient = ingredientRepository.findByOtherNames(ing);
-            }
+            Ingredient ingredient = ingredientRepository.findByAllNames(ing);
+
             if (ingredient == null) {
                 decoding.add(ing + " ???");
+                unknown.add(ing);
             } else {
                 decoding.add(ingredient.getTradeName());
+                ingredients.add(ingredient);
+
                 for (String func : ingredient.getFunctions().stream().map(Function::getName).collect(Collectors.toList())) {
                     if (ingByFunc.containsKey(func)) {
                         List<String> elements = new ArrayList<>(ingByFunc.get(func));
@@ -69,11 +73,24 @@ public class DecodingController {
                         ingByFunc.put(func, List.of(ingredient.getTradeName()));
                     }
                 }
+
+                for (String cat : ingredient.getCategories().stream().map(Category::getName).collect(Collectors.toList())) {
+                    if (ingByCat.containsKey(cat)) {
+                        List<String> elements = new ArrayList<>(ingByCat.get(cat));
+                        elements.add(ingredient.getTradeName());
+                        ingByCat.put(cat, elements);
+                    } else {
+                        ingByCat.put(cat, List.of(ingredient.getTradeName()));
+                    }
+                }
             }
         }
         model.addAttribute("text", text);
+        model.addAttribute("unknown", unknown);
         model.addAttribute("decoding", decoding);
+        model.addAttribute("ingByCat", ingByCat);
         model.addAttribute("ingByFunc", ingByFunc);
+        model.addAttribute("ingredients", ingredients);
         return "decoding/decoding";
     }
 }

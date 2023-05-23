@@ -16,24 +16,38 @@ public interface IngredientRepository extends CrudRepository<Ingredient, Long> {
 
     Ingredient findByOtherNames(String otherName);
 
-    @Modifying
     @Query(
-            value = "SELECT inci FROM ingredient UNION SELECT trade_name FROM ingredient UNION SELECT other_names FROM ingredient_other_names",
+            value = "SELECT ingredient.* FROM (" +
+                    "SELECT inci, id FROM ingredient " +
+                    "UNION " +
+                    "SELECT trade_name, id FROM ingredient " +
+                    "UNION " +
+                    "SELECT other_names, ingredient_id FROM ingredient_other_names" +
+                    ") AS t " +
+                    "JOIN ingredient ON t.id=ingredient.id " +
+                    "WHERE t.inci LIKE :name",
             nativeQuery = true
     )
-    List<String> getAllNames();
+    Ingredient findByAllNames(@Param("name") String name);
 
     @Query(
             value = "SELECT ingredient.* FROM (" +
-                        "SELECT inci, id FROM ingredient " +
-                        "UNION " +
-                        "SELECT trade_name, id FROM ingredient " +
-                        "UNION " +
-                        "SELECT other_names, ingredient_id FROM ingredient_other_names" +
+                    "SELECT inci, id FROM ingredient " +
+                    "UNION " +
+                    "SELECT trade_name, id FROM ingredient " +
+                    "UNION " +
+                    "SELECT other_names, ingredient_id FROM ingredient_other_names" +
                     ") AS t " +
                     "JOIN ingredient ON t.id=ingredient.id " +
                     "WHERE t.inci LIKE %:searchString%",
             nativeQuery = true
     )
     List<Ingredient> searchIngredients(@Param("searchString") String searchString);
+
+    @Modifying
+    @Query(
+            value = "SELECT inci FROM ingredient UNION SELECT trade_name FROM ingredient UNION SELECT other_names FROM ingredient_other_names",
+            nativeQuery = true
+    )
+    List<String> getAllNames();
 }
