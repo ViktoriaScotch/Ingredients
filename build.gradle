@@ -1,14 +1,13 @@
 plugins {
-    id 'org.springframework.boot' version '2.7.3'
+    id 'org.springframework.boot' version '3.0.4'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
 }
 
-def springVersion = '2.7.3'
+def springVersion = '3.0.4'
 
 group = 'ru.ingredients'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '11'
 
 repositories {
     mavenCentral()
@@ -19,10 +18,10 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-devtools:${springVersion}"
     implementation "org.springframework.boot:spring-boot-starter-thymeleaf:${springVersion}"
     implementation "org.springframework.boot:spring-boot-starter-data-jpa:${springVersion}"
-    implementation 'org.springframework.boot:spring-boot-starter-security:2.7.3'
-    implementation 'org.springframework.security:spring-security-test:5.7.3'
-    implementation 'org.postgresql:postgresql:42.5.0'
-    implementation 'com.vladmihalcea:hibernate-types-52:2.19.1'
+    implementation "org.springframework.boot:spring-boot-starter-security:${springVersion}"
+    implementation 'org.springframework.security:spring-security-test:6.0.2'
+    implementation "io.hypersistence:hypersistence-utils-hibernate-60:3.2.0"
+    implementation 'org.postgresql:postgresql:42.5.4'
     testImplementation "org.springframework.boot:spring-boot-starter-test:${springVersion}"
 }
 

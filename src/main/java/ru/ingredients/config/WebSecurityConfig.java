@@ -16,10 +16,12 @@ public class WebSecurityConfig {
     @Bean
     protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
         return http
-                .authorizeHttpRequests()
-                .antMatchers("/ingredients/{id}/edit", "/ingredients/new")
-                    .hasRole("ADMIN")
-                    .and()
+                .authorizeHttpRequests((requests) -> requests
+                .requestMatchers("/**")
+                    .permitAll()
+                .requestMatchers("/ingredients/{id}/edit", "/ingredients/new")
+                     .hasRole("ADMIN")
+                    .and())
                 .formLogin()
                     .loginPage("/login")
                     .permitAll()
