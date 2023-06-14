@@ -6,6 +6,7 @@ plugins {
 
 jar {
     manifest {
+        enabled = false
         attributes(
                 'Main-Class': 'ru.ingredients.IngredientsApplication'
         )
