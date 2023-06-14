@@ -24,13 +24,17 @@
         </form>
     </div>
 
-    <div class="container mt-5">
-        <span class="text-capitalize" th:text="${#strings.arrayJoin(decoding,', ')}"></span>
+    <div class="container mt-5 text-capitalize">
+        <span th:each="el, iterStat : ${ingredients}" th:switch="${el.id == null}">
+          <a th:case="true" th:text="!${iterStat.last} ? ${el.tradeName} + ', ': ${el.tradeName}" class="btn-link text-decoration-none disabled"></a>
+          <a th:case="false" th:href="'/ingredients/' + ${el.id}" th:text="!${iterStat.last} ? ${el.tradeName} + ', ': ${el.tradeName}" class="text-decoration-none text-light"></a>
+        </span>
+<!--            <a th:href="${el.id != null} ? '/ingredients/' + ${el.id}" th:text="${el.tradeName} + ', '" class="text-capitalize text-decoration-none disabled"></a>-->
     </div>
 
     <div class="container mt-5">
         <p><b class="text-capitalize">Не распознаны: </b>
-            <span class="text-capitalize" th:text="${#strings.arrayJoin(unknown,', ')}"></span>
+            <span th:if="${el.id == null}" th:each="el, iterStat : ${ingredients}" th:text="!${iterStat.last} ? ${el.tradeName} + ', ': ${el.tradeName}" class="text-capitalize"></span>
         </p>
     </div>
 
@@ -53,7 +57,7 @@
                     <tbody>
                     <tr th:each="el : ${ingByFunc}">
                         <th th:text="${el.key}" class="text-capitalize"></th>
-                        <td th:text="${#strings.arrayJoin(el.value,', ')}" class="text-capitalize"></td>
+                        <td th:text="${#strings.arrayJoin(el.value.![tradeName],', ')}" class="text-capitalize"></td>
                     </tr>
                     </tbody>
                 </table>
@@ -64,7 +68,7 @@
                     <tbody>
                     <tr th:each="el : ${ingByCat}">
                         <th th:text="${el.key}" class="text-capitalize"></th>
-                        <td th:text="${#strings.arrayJoin(el.value,', ')}" class="text-capitalize"></td>
+                        <td th:text="${#strings.arrayJoin(el.value.![tradeName],', ')}" class="text-capitalize"></td>
                     </tr>
                     </tbody>
                 </table>
@@ -84,10 +88,10 @@
             </thead>
             <tbody>
             <tr th:each="el : ${ingredients}">
-                <th th:text="${el.inci}" class="text-capitalize"></th>
-                <td th:text="${el.tradeName}" class="text-capitalize"></td>
-                <td th:text="${#strings.arrayJoin(el.functions.![name],', ')}"></td>
-                <td th:text="${#strings.arrayJoin(el.categories.![name],', ')}"></td>
+                <th th:if="${el.id != null}" th:text="${el.inci}" class="text-capitalize"></th>
+                <td th:if="${el.id != null}" th:text="${el.tradeName}" class="text-capitalize"></td>
+                <td th:if="${el.id != null}" th:text="${#strings.arrayJoin(el.functions.![name],', ')}"></td>
+                <td th:if="${el.id != null}" th:text="${#strings.arrayJoin(el.categories.![name],', ')}"></td>
             </tr>
             </tbody>
         </table>
