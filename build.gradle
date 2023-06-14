@@ -4,6 +4,15 @@ plugins {
     id 'java'
 }
 
+jar {
+    manifest {
+        enabled = false
+        attributes(
+                'Main-Class': 'ru.ingredients.IngredientsApplication'
+        )
+    }
+}
+
 def springVersion = '3.0.4'
 
 group = 'ru.ingredients'
