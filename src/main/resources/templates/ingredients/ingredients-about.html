@@ -28,12 +28,11 @@
 
     <div class="container">
         <div class="alert alert-secondary mt-2">
-            <h1 class="text-capitalize" th:text="${ing.tradeName}"></h1>
+            <h1 th:text="${ing.tradeName}"></h1>
 
-            <p class="text-capitalize fs-4" th:text="${ing.inci}"></p>
+            <p class="fs-4" th:text="${ing.inci}"></p>
 
-            <p th:if="${!ing.otherNames.empty}"><b>Также называется как: </b><span class="text-capitalize"
-                                                  th:text="${#strings.arrayJoin(ing.otherNames,', ')}"></span></p>
+            <p th:if="${!ing.otherNames.empty}"><b>Также называется как: </b><span th:text="${#strings.arrayJoin(ing.otherNames,', ')}"></span></p>
 
             <p th:if="${!ing.functions.empty}"><b>Функции: </b><span th:text="${#strings.arrayJoin(ing.functions.![name],', ')}"></span></p>
 

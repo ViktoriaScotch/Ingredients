@@ -16,6 +16,7 @@ import ru.ingredients.repo.IngredientRepository;
 import ru.ingredients.repo.PercentRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,7 +44,8 @@ public class IngredientController {
 
     @GetMapping("")
     public String ingredients(Model model, @RequestParam(required = false) String q, HttpServletRequest request) {
-        Iterable<Ingredient> ingredients = q == null || q.isEmpty() ? ingredientRepository.findAll() : ingredientRepository.searchIngredients(q.toLowerCase());
+        Iterable<Ingredient> ingredients = q == null || q.isEmpty() ? ingredientRepository.findAll() :
+                ingredientRepository.searchIngredients(q.toLowerCase().replaceAll("[^a-zA-Zа-яА-Я0-9]+", ""));
         model.addAttribute("ingredients", ingredients);
         model.addAttribute("isAdmin", request.isUserInRole("ROLE_ADMIN"));
         model.addAttribute("ingredientsStr", ingredientRepository.getAllNames());
@@ -73,11 +75,9 @@ public class IngredientController {
         if (bindingResult.hasErrors()) {
             return "ingredients/ingredients-new";
         }
-        ingredient.setInci(ingredient.getInci().toLowerCase());
-        ingredient.setTradeName(ingredient.getTradeName().toLowerCase());
-        ingredient.setOtherNames(ingredient.getOtherNames().stream()
-                .map(String::toLowerCase)
-                .collect(Collectors.toSet()));
+        ingredient.setInci(ingredient.getInci());
+        ingredient.setTradeName(ingredient.getTradeName());
+        ingredient.setOtherNames(ingredient.getOtherNames());
         for (Percent percent : ingredient.getPercents()) {
             percentRepository.save(percent);
         }

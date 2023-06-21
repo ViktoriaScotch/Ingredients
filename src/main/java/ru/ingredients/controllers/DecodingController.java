@@ -45,7 +45,7 @@ public class DecodingController {
     public String decoding(Model model) {
         List<String> ingText = new ArrayList<>();
         if (text != null) {
-            ingText = Arrays.stream(text.split(", ")).map(String::toLowerCase).collect(Collectors.toList());
+            ingText = Arrays.stream(text.split(", ")).collect(Collectors.toList());
         }
 
         Map<String, List<Ingredient>> ingByFunc = new HashMap<>();
@@ -53,7 +53,8 @@ public class DecodingController {
         List<Ingredient> ingredients = new ArrayList<>();
 
         for (String ing : ingText) {
-            Ingredient ingredient = ingredientRepository.findByAllNames(ing);
+            Ingredient ingredient = ingredientRepository.findByAllNames(ing.toLowerCase()
+                    .replaceAll("\\(.+?\\)","").replaceAll("[^a-zA-Zа-яА-Я0-9]+", ""));
 
             if (ingredient == null) {
                 ingredients.add(new Ingredient().setTradeName(ing));

@@ -42,8 +42,8 @@
         <div class="container d-flex flex-wrap justify-content-center mt-4">
             <a th:href="'/ingredients/' + ${el.id}" th:each="el : ${ingredients}" class="mb-2 text-decoration-none">
                 <div class="alert alert-light mx-2">
-                    <p th:text="${el.tradeName}" class="h4 text-capitalize"></p>
-                    <p th:text="${el.inci}" class="text-capitalize"></p>
+                    <p th:text="${el.tradeName}" class="h4"></p>
+                    <p th:text="${el.inci}"></p>
                 </div>
             </a>
         </div>

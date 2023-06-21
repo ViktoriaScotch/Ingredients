@@ -25,13 +25,17 @@ public interface IngredientRepository extends CrudRepository<Ingredient, Long> {
                     "SELECT other_names, ingredient_id FROM ingredient_other_names" +
                     ") AS t " +
                     "JOIN ingredient ON t.id=ingredient.id " +
-                    "WHERE t.inci LIKE :name",
+                    "WHERE LOWER(REGEXP_REPLACE(" +
+                    "               REGEXP_REPLACE(" +
+                    "                           t.inci, " +
+                    "               '\\(.+?\\)','','g'), " +
+                    "           '\\W+', '', 'g')) LIKE :name",
             nativeQuery = true
     )
     Ingredient findByAllNames(@Param("name") String name);
 
     @Query(
-            value = "SELECT ingredient.* FROM (" +
+            value = "SELECT DISTINCT ingredient.* FROM (" +
                     "SELECT inci, id FROM ingredient " +
                     "UNION " +
                     "SELECT trade_name, id FROM ingredient " +
@@ -39,7 +43,7 @@ public interface IngredientRepository extends CrudRepository<Ingredient, Long> {
                     "SELECT other_names, ingredient_id FROM ingredient_other_names" +
                     ") AS t " +
                     "JOIN ingredient ON t.id=ingredient.id " +
-                    "WHERE t.inci LIKE %:searchString%",
+                    "WHERE LOWER(REGEXP_REPLACE(t.inci, '\\W+', '', 'g')) LIKE %:searchString%",
             nativeQuery = true
     )
     List<Ingredient> searchIngredients(@Param("searchString") String searchString);
