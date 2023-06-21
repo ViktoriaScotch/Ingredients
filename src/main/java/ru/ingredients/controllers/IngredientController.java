@@ -95,6 +95,7 @@ public class IngredientController {
         model.addAttribute("ing", ing);
 
         model.addAttribute("isAdmin", req.isUserInRole("ROLE_ADMIN"));
+        model.addAttribute("referer", req.getHeader("Referer"));
         return "ingredients/ingredients-about";
     }
 
