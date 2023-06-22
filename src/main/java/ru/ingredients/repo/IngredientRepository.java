@@ -16,6 +16,13 @@ public interface IngredientRepository extends CrudRepository<Ingredient, Long> {
 
     Ingredient findByOtherNames(String otherName);
 
+    @Modifying
+    @Query(
+            value = "SELECT inci FROM ingredient UNION SELECT trade_name FROM ingredient UNION SELECT other_names FROM ingredient_other_names",
+            nativeQuery = true
+    )
+    List<String> getAllNames();
+
     @Query(
             value = "SELECT ingredient.* FROM (" +
                     "SELECT inci, id FROM ingredient " +
@@ -48,10 +55,16 @@ public interface IngredientRepository extends CrudRepository<Ingredient, Long> {
     )
     List<Ingredient> searchIngredients(@Param("searchString") String searchString);
 
-    @Modifying
     @Query(
-            value = "SELECT inci FROM ingredient UNION SELECT trade_name FROM ingredient UNION SELECT other_names FROM ingredient_other_names",
+            value = "SELECT t.name, t.id FROM (" +
+                    "SELECT inci as name, id FROM ingredient " +
+                    "UNION " +
+                    "SELECT trade_name as name, id FROM ingredient " +
+                    "UNION " +
+                    "SELECT other_names as name, ingredient_id as id FROM ingredient_other_names" +
+                    ") AS t " +
+                    "JOIN ingredient ON t.id=ingredient.id ",
             nativeQuery = true
     )
-    List<String> getAllNames();
+    List<String[]> getAllNamesId();
 }

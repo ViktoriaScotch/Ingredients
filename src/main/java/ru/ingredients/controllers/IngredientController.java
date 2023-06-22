@@ -1,5 +1,6 @@
 package ru.ingredients.controllers;
 
+import org.javatuples.LabelValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -46,9 +47,10 @@ public class IngredientController {
     public String ingredients(Model model, @RequestParam(required = false) String q, HttpServletRequest request) {
         Iterable<Ingredient> ingredients = q == null || q.isEmpty() ? ingredientRepository.findAll() :
                 ingredientRepository.searchIngredients(q.toLowerCase().replaceAll("[^a-zA-Zа-яА-Я0-9]+", ""));
+        List<LabelValue<String, String>> ingredientsNameId = ingredientRepository.getAllNamesId().stream().map(LabelValue::fromArray).collect(Collectors.toList());
         model.addAttribute("ingredients", ingredients);
         model.addAttribute("isAdmin", request.isUserInRole("ROLE_ADMIN"));
-        model.addAttribute("ingredientsStr", ingredientRepository.getAllNames());
+        model.addAttribute("ingredientsNameId", ingredientsNameId);
         return "ingredients/ingredients";
     }
 

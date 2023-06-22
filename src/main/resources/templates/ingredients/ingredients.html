@@ -64,9 +64,18 @@
 
 <script th:inline="javascript">
  $("#search").autocomplete({
-      source: [[${ ingredientsStr }]],
-      minLength: 2
-    });
+    source: [[${ ingredientsNameId }]],
+    minLength: 2,
+    focus: function( event, ui ) {
+        $(this).val(ui.item.label);
+        return false;
+    },
+    select: function(event, ui) {
+        $(this).val(ui.item.label);
+        window.location.href = '/ingredients/' + ui.item.value;
+        return false;
+    },
+ });
 </script>
 
 </body>
