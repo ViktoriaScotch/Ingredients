@@ -1,6 +1,8 @@
 package ru.ingredients.controllers;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,9 +55,15 @@ public class DecodingController {
         List<Ingredient> ingredients = new ArrayList<>();
 
         for (String ing : ingText) {
-            Ingredient ingredient = ingredientRepository.findByAllNames(ing.toLowerCase()
-                    .replaceAll("\\(.+?\\)","").replaceAll("[^a-zA-Zа-яА-Я0-9]+", ""));
-
+            Ingredient ingredient;
+            try {
+                ingredient = ingredientRepository.findByAllNames(ing.toLowerCase()
+                        .replaceAll("\\(.+?\\)", "").replaceAll("[^a-zA-Zа-яА-Я0-9]+", ""));
+            }
+            catch (IncorrectResultSizeDataAccessException e) {
+                ingredient =ingredientRepository.findByAllNames(
+                        StringUtils.substringBetween(ing.toLowerCase(), "(", ")").replaceAll("[^a-zA-Zа-яА-Я0-9]+", ""));
+            }
             if (ingredient == null) {
                 ingredients.add(new Ingredient().setTradeName(ing));
             } else {
