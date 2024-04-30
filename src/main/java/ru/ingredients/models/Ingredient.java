@@ -25,10 +25,10 @@ public class Ingredient {
 
     private String contraindication;
 
-    @OneToMany
+    @OneToMany(mappedBy = "ingredient", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Percent> percents = new ArrayList<>();
 
-    @ElementCollection(fetch = FetchType.LAZY)
+    @ElementCollection
     private Set<String> otherNames = new HashSet<>();
 
     @ManyToMany

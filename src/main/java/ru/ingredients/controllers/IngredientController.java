@@ -77,11 +77,8 @@ public class IngredientController {
         if (bindingResult.hasErrors()) {
             return "ingredients/ingredients-new";
         }
-        ingredient.setInci(ingredient.getInci());
-        ingredient.setTradeName(ingredient.getTradeName());
-        ingredient.setOtherNames(ingredient.getOtherNames());
         for (Percent percent : ingredient.getPercents()) {
-            percentRepository.save(percent);
+            percent.setIngredient(ingredient);
         }
         ingredientRepository.save(ingredient);
         model.clear();
@@ -137,7 +134,7 @@ public class IngredientController {
             return "ingredients/ingredients-edit";
         }
         for (Percent percent : ing.getPercents()) {
-            percentRepository.save(percent);
+            percent.setIngredient(ing);
         }
         ingredientRepository.save(ing);
         return "redirect:/ingredients/{id}";
