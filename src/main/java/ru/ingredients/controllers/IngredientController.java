@@ -77,9 +77,6 @@ public class IngredientController {
         if (bindingResult.hasErrors()) {
             return "ingredients/ingredients-new";
         }
-        for (Percent percent : ingredient.getPercents()) {
-            percent.setIngredient(ingredient);
-        }
         ingredientRepository.save(ingredient);
         model.clear();
         return "redirect:/ingredients";
@@ -132,9 +129,6 @@ public class IngredientController {
     public String ingredientsUpdate(@PathVariable(value = "id") long id, final Ingredient ing, final BindingResult bindingResult, final ModelMap model) {
         if (bindingResult.hasErrors()) {
             return "ingredients/ingredients-edit";
-        }
-        for (Percent percent : ing.getPercents()) {
-            percent.setIngredient(ing);
         }
         ingredientRepository.save(ing);
         return "redirect:/ingredients/{id}";

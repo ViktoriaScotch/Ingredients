@@ -25,7 +25,8 @@ public class Ingredient {
 
     private String contraindication;
 
-    @OneToMany(mappedBy = "ingredient", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL)
+    @JoinColumn(name = "ingredient_id")
     private List<Percent> percents = new ArrayList<>();
 
     @ElementCollection

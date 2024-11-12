@@ -15,19 +15,14 @@ public class Percent {
 
     private String comment;
 
-    @ManyToOne
-    @JoinColumn(name = "ingredient_id")
-    private Ingredient ingredient;
-
     public Percent() {
     }
 
-    public Percent(Long id, double min, double max, String comment, Ingredient ingredient) {
+    public Percent(Long id, double min, double max, String comment) {
         this.id = id;
         this.min = min;
         this.max = max;
         this.comment = comment;
-        this.ingredient = ingredient;
     }
 
     public Long getId() {
@@ -60,13 +55,5 @@ public class Percent {
 
     public void setComment(String comment) {
         this.comment = comment;
-    }
-
-    public Ingredient getIngredient() {
-        return ingredient;
-    }
-
-    public void setIngredient(Ingredient ingredient) {
-        this.ingredient = ingredient;
     }
 }
