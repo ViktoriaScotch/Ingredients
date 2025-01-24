@@ -23,8 +23,6 @@ public class Ingredient {
     @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     private String description;
 
-    private String contraindication;
-
     @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL)
     @JoinColumn(name = "ingredient_id")
     private List<Percent> percents = new ArrayList<>();
@@ -41,12 +39,11 @@ public class Ingredient {
     public Ingredient() {
     }
 
-    public Ingredient(String inci, String tradeName, String description, Set<String> otherNames, Set<Function> functions, Set<Category> categories, List<Percent> percents, String contraindication) {
+    public Ingredient(String inci, String tradeName, String description, Set<String> otherNames, Set<Function> functions, Set<Category> categories, List<Percent> percents) {
         this.inci = inci;
         this.tradeName = tradeName;
         this.description = description;
         this.percents = percents;
-        this.contraindication = contraindication;
         this.otherNames = otherNames;
         this.functions = functions;
         this.categories = categories;
@@ -93,15 +90,6 @@ public class Ingredient {
 
     public Ingredient setPercents(List<Percent> percents) {
         this.percents = percents;
-        return this;
-    }
-
-    public String getContraindication() {
-        return contraindication;
-    }
-
-    public Ingredient setContraindication(String contraindication) {
-        this.contraindication = contraindication;
         return this;
     }
 

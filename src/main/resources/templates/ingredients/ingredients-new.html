@@ -54,8 +54,6 @@
                             th:value="${cat.getId}" th:text="${cat.getName}"></option>
                 </select><br>
 
-                <input type="text" th:field="*{contraindication}" placeholder="Введите противопоказания" class="form-control"><br>
-
                 <p class="text-white text-start">Введите эффективный процент ввода: </p>
                 <div class="row g-4 d-grid gap-2 d-md-flex justify-content-md-end" th:each="percent,percentStat : *{percents}">
                     <label for="min" class="text-white col-sm-1 col-form-label">от</label>

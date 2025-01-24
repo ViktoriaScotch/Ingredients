@@ -40,8 +40,6 @@
 
             <p th:if="${!ing.description.empty}"><b>Описание: </b><span th:text="${ing.description}"></span></p>
 
-            <p th:if="${!ing.contraindication.empty}" th:text="${ing.contraindication}"></p>
-
             <p th:if="${!ing.percents.empty}"><b>Эффективные проценты ввода: </b>
             <div th:each="percent : ${ing.percents}">
                     <b>от </b><span th:text="${percent.min}"></span>
