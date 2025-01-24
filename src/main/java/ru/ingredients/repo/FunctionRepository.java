@@ -1,7 +1,7 @@
 package ru.ingredients.repo;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import ru.ingredients.models.Function;
 
-public interface FunctionRepository  extends CrudRepository<Function, Long> {
+public interface FunctionRepository  extends JpaRepository<Function, Long> {
 }

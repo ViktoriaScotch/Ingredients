@@ -1,14 +1,14 @@
 package ru.ingredients.repo;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import ru.ingredients.models.Ingredient;
 
 import java.util.List;
 
-public interface IngredientRepository extends CrudRepository<Ingredient, Long> {
+public interface IngredientRepository extends JpaRepository<Ingredient, Long> {
 
     Ingredient findByInci(String inci);
 
