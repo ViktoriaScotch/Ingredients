@@ -1,5 +1,6 @@
 package ru.ingredients.controllers;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.javatuples.LabelValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -11,43 +12,32 @@ import ru.ingredients.models.Category;
 import ru.ingredients.models.Function;
 import ru.ingredients.models.Ingredient;
 import ru.ingredients.models.Percent;
-import ru.ingredients.repo.CategoryRepository;
-import ru.ingredients.repo.FunctionRepository;
-import ru.ingredients.repo.IngredientRepository;
-import ru.ingredients.repo.PercentRepository;
+import ru.ingredients.services.IngredientService;
 
-import jakarta.servlet.http.HttpServletRequest;
-
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @Controller
 @RequestMapping("/ingredients")
 public class IngredientController {
     @Autowired
-    private IngredientRepository ingredientRepository;
-    @Autowired
-    private FunctionRepository functionRepository;
-    @Autowired
-    private CategoryRepository categoryRepository;
-    @Autowired
-    private PercentRepository percentRepository;
+    private IngredientService ingredientService;
 
     @ModelAttribute("allFunctions")
     public List<Function> allFunctions() {
-        return (List<Function>) this.functionRepository.findAll();
+        return ingredientService.getAllFunctions();
     }
 
     @ModelAttribute("allCategories")
     public List<Category> allCategories() {
-        return (List<Category>) this.categoryRepository.findAll();
+        return ingredientService.getAllCategories();
     }
 
     @GetMapping("")
     public String ingredients(Model model, @RequestParam(required = false) String q, HttpServletRequest request) {
-        Iterable<Ingredient> ingredients = q == null || q.isEmpty() ? ingredientRepository.findAll() :
-                ingredientRepository.searchIngredients(q.toLowerCase().replaceAll("[^a-zA-Zа-яА-Я0-9]+", ""));
-        List<LabelValue<String, String>> ingredientsNameId = ingredientRepository.getAllNamesId().stream().map(LabelValue::fromArray).collect(Collectors.toList());
+        Iterable<Ingredient> ingredients = ingredientService.getIngredients(q);
+        List<LabelValue<String, String>> ingredientsNameId = ingredientService.getIngredientsForAutocomplete();
+
         model.addAttribute("ingredients", ingredients);
         model.addAttribute("isAdmin", request.isUserInRole("ROLE_ADMIN"));
         model.addAttribute("ingredientsNameId", ingredientsNameId);
@@ -77,60 +67,62 @@ public class IngredientController {
         if (bindingResult.hasErrors()) {
             return "ingredients/ingredients-new";
         }
-        ingredientRepository.save(ingredient);
+        ingredientService.saveIngredient(ingredient);
         model.clear();
         return "redirect:/ingredients";
     }
 
     @GetMapping("/{id}")
     public String ingredientMore(@PathVariable(value = "id") long id, Model model, HttpServletRequest req) {
-        if (ingredientRepository.findById(id).isEmpty()) {
+        Ingredient ing;
+        try {
+            ing = ingredientService.findIngredientById(id);
+        } catch (NoSuchElementException e) {
             return "redirect:/ingredients";
         }
-        Ingredient ing = ingredientRepository.findById(id).get();
         model.addAttribute("ing", ing);
-
         model.addAttribute("isAdmin", req.isUserInRole("ROLE_ADMIN"));
         model.addAttribute("referer", req.getHeader("Referer"));
         return "ingredients/ingredients-about";
     }
 
     @DeleteMapping("/{id}")
-    public String ingredientsDelete(@PathVariable(value = "id") long id, Model model) {
-        Ingredient ing = ingredientRepository.findById(id).orElseThrow();
-        ingredientRepository.delete(ing);
+    public String ingredientsDelete(@PathVariable(value = "id") long id) {
+        ingredientService.deleteIngredient(id);
         return "redirect:/ingredients";
     }
 
     @GetMapping("/{id}/edit")
-    public String ingredientEdit(@PathVariable(value = "id") long id, Ingredient ing, final BindingResult bindingResult, Model model) {
-        if (ingredientRepository.findById(id).isEmpty()) {
+    public String ingredientEdit(@PathVariable(value = "id") long id, Model model, HttpServletRequest req) {
+        Ingredient ing;
+        try {
+            ing = ingredientService.findIngredientById(id);
+        } catch (NoSuchElementException e) {
             return "redirect:/ingredients";
         }
-        ing = ingredientRepository.findById(id).get();
         model.addAttribute("ingredient", ing);
         return "ingredients/ingredients-edit";
     }
 
     @RequestMapping(value = "/{id}/edit", params = {"addPercent"})
-    public String addPercentEdit(@PathVariable(value = "id") long id, final Ingredient ing, final BindingResult bindingResult, Model model) {
+    public String addPercentEdit(final Ingredient ing) {
         ing.getPercents().add(new Percent());
         return "ingredients/ingredients-edit";
     }
 
     @RequestMapping(value = "/{id}/edit", params = {"removePercent"})
-    public String removePercentEdit(@PathVariable(value = "id") long id, final Ingredient ing, final BindingResult bindingResult, Model model, final HttpServletRequest req) {
+    public String removePercentEdit(final Ingredient ing, final HttpServletRequest req) {
         final int percentIndex = Integer.parseInt(req.getParameter("removePercent"));
         ing.getPercents().remove(percentIndex);
         return "ingredients/ingredients-edit";
     }
 
-    @PatchMapping(value = "/{id}/edit", params = {"save"})
-    public String ingredientsUpdate(@PathVariable(value = "id") long id, final Ingredient ing, final BindingResult bindingResult, final ModelMap model) {
+    @PatchMapping(value = "/{id}/edit")
+    public String ingredientsUpdate(final Ingredient ing, final BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return "ingredients/ingredients-edit";
         }
-        ingredientRepository.save(ing);
+        ingredientService.saveIngredient(ing);
         return "redirect:/ingredients/{id}";
     }
 }
