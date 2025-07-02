@@ -8,8 +8,16 @@
     <!-- Bootstrap core CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" rel="stylesheet">
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        /* Прокручивание чекбоксов */
+        .filter-content {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
 </head>
 <body class="d-flex h-100 text-center text-white bg-dark">
 
@@ -18,35 +26,138 @@
 
     <div class="container mt-5 w-80">
         <h1>Ингредиенты</h1><br>
+        <form action="/ingredients" method="get" class="w-100">
 
-        <div class="d-flex justify-content-center">
-            <form action="/ingredients" method="get" class="input-group w-50">
-                <input type="text" class="form-control" placeholder="Поиск" id="search" name="q">
+            <!-- Поле поиска -->
+            <div class="d-flex justify-content-center">
+                <input type="search" class="form-control w-50" placeholder="Поиск" id="search" name="search"
+                       th:value="${search}">
                 <span class="input-group-text">
-                        <button class="btn btn-sm" type="submit">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                 class="bi bi-search" viewBox="0 0 16 16">
-                                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"></path>
-                            </svg>
-                        </button>
-                  </span>
-            </form>
-        </div>
+                    <button class="btn btn-sm" type="submit">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                             class="bi bi-search" viewBox="0 0 16 16">
+                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"></path>
+                        </svg>
+                    </button>
+                </span>
+            </div>
 
-        <p th:if="${isAdmin}" class="lead">
-            <a href="/ingredients/new" class="btn btn-lg fw-bold border-white bg-white mt-4">Добавить
-                ингредиент</a>
-        </p>
-        <br>
+            <!-- Отображение примененных фильтров -->
+            <div class="mb-3" th:if="${not #lists.isEmpty(selFunc) or not #lists.isEmpty(selCat)}">
+                <h6>Примененные фильтры:</h6>
+                <div class="d-flex flex-wrap">
+                    <!-- Функции -->
+                    <div th:each="func : ${selFunc}">
+                        <span class="badge d-flex align-items-center p-1 pe-2 text-light-emphasis bg-light-subtle border border-dark-subtle rounded-pill">
+                            <span th:text="${func.getName}"></span>
+                            <button class="remove-func btn btn-link p-0" type="button" th:value="${func.getId}">
+                                <svg class="bi" width="16" height="16"><use xlink:href="#x-circle-fill"></use></svg>
+                            </button>
+                        </span>
+                    </div>
 
-        <div class="container d-flex flex-wrap justify-content-center mt-4">
-            <a th:href="'/ingredients/' + ${el.id}" th:each="el : ${ingredients}" class="mb-2 text-decoration-none">
-                <div class="alert alert-light mx-2">
-                    <p th:text="${el.tradeName}" class="h4"></p>
-                    <p th:text="${el.inci}"></p>
+                    <!-- Категории -->
+                    <div th:each="cat : ${selCat}">
+                        <span class="badge d-flex align-items-center p-1 pe-2 text-light-emphasis bg-light-subtle border border-dark-subtle rounded-pill">
+                            <span th:text="${cat.getName}"></span>
+                            <button class="remove-cat btn btn-link p-0" type="button" th:value="${cat.getId}">
+                                <svg class="bi" width="16" height="16"><use xlink:href="#x-circle-fill"></use></svg>
+                            </button>
+                        </span>
+                    </div>
+
+                    <!-- Кнопка очистки всех фильтров -->
+                    <span class="clear-filters badge d-flex align-items-center p-1 pe-2 text-danger-emphasis bg-danger-subtle border border-danger-subtle rounded-pill">
+                        Очистить все
+                        <a href="#"><svg class="bi" width="16" height="16"><use xlink:href="#x-circle-fill"></use></svg></a>
+                    </span>
                 </div>
-            </a>
-        </div>
+            </div>
+
+            <!-- Кнопка для открытия фильтра -->
+            <button class="btn btn-primary mb-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#filterPanel">
+                Фильтр
+            </button>
+
+            <!-- Сворачиваемая панель фильтрации -->
+            <div class="offcanvas offcanvas-start bg-secondary" tabindex="-1" id="filterPanel">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title">Фильтр ингредиентов</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+                </div>
+                <div class="offcanvas-body">
+
+                    <!-- Функции -->
+                    <div class="mb-3">
+                        <h6>Функция</h6>
+                        <div class="filter-content">
+                            <div class="form-check" th:each="func : ${allFunctions}">
+                                <input class="form-check-input" type="checkbox" name="selFuncId" th:value="${func.getId}"
+                                       th:id="'func-' + ${func.getId}"
+                                       th:checked="${selFunc != null and selFunc.contains(func)}">
+                                <label class="form-check-label" th:for="'func-' + ${func.getId}"
+                                       th:text="${func.getName}"></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Категории -->
+                    <div class="mb-3">
+                        <h6>Категория</h6>
+                        <div class="filter-content">
+                            <div class="form-check" th:each="cat : ${allCategories}">
+                                <input class="form-check-input" type="checkbox" name="selCatId" th:value="${cat.getId}"
+                                       th:id="'cat-' + ${cat.getId}"
+                                       th:checked="${selCat != null and selCat.contains(cat)}">
+                                <label class="form-check-label" th:for="'cat-' + ${cat.getId}"
+                                       th:text="${cat.getName}"></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">Применить</button>
+                </div>
+            </div>
+
+            <!-- Кнопка добавления ингредиента для админа -->
+            <p th:if="${isAdmin}" class="lead">
+                <a href="/ingredients/new" class="btn btn-lg fw-bold border-white bg-white mt-4">Добавить
+                    ингредиент</a>
+            </p>
+            <br>
+
+            <!-- Ингредиенты -->
+            <div class="container d-flex flex-wrap justify-content-center mt-4">
+                <a th:href="'/ingredients/' + ${el.id}" th:each="el : ${ingredients}" class="mb-2 text-decoration-none">
+                    <div class="alert alert-light mx-2">
+                        <p th:text="${el.tradeName}" class="h4"></p>
+                        <p th:text="${el.inci}"></p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Пагинация -->
+            <nav aria-label="pagination" class="mt-auto d-flex justify-content-center py-3">
+                <ul th:if="${totalPages >= 1}" class="pagination">
+                    <li th:class="'page-item' + (${currentPage == 0} ? ' disabled' : '')">
+                        <button type="submit" class="page-link" name="page" th:value="${currentPage - 1}">Предыдущая
+                        </button>
+                    </li>
+
+                    <li th:each="pageNo : ${#numbers.sequence(0, totalPages - 1)}"
+                        th:class="'page-item' + (${currentPage == pageNo} ? ' active' : '')">
+                        <button type="submit" class="page-link" name="page" th:value="${pageNo}">
+                            <span th:text="${pageNo + 1}"></span>
+                        </button>
+                    </li>
+
+                    <li th:class="'page-item' + (${currentPage == totalPages - 1} ? ' disabled' : '')">
+                        <button type="submit" class="page-link" name="page" th:value="${currentPage + 1}">Следующая
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        </form>
     </div>
 
     <footer th:replace="blocks/footer :: footer"></footer>
@@ -63,19 +174,35 @@
         crossorigin="anonymous"></script>
 
 <script th:inline="javascript">
- $("#search").autocomplete({
-    source: [[${ ingredientsNameId }]],
-    minLength: 2,
-    focus: function( event, ui ) {
-        $(this).val(ui.item.label);
-        return false;
-    },
-    select: function(event, ui) {
-        $(this).val(ui.item.label);
-        window.location.href = '/ingredients/' + ui.item.value;
-        return false;
-    },
- });
+$("#search").autocomplete({
+   source: [[${ ingredientsNameId }]],
+   minLength: 2,
+   focus: function( event, ui ) {
+       $(this).val(ui.item.label);
+       return false;
+   },
+   select: function(event, ui) {
+       $(this).val(ui.item.label);
+       window.location.href = '/ingredients/' + ui.item.value;
+       return false;
+   },
+});
+$(".remove-func").on('click', function () {
+    let urlParams = new URLSearchParams(window.location.search);
+    urlParams.delete("selFuncId", $(this).val());
+    window.location.href = window.location.pathname + "?" + urlParams.toString();
+});
+$(".remove-cat").on('click', function () {
+    let urlParams = new URLSearchParams(window.location.search);
+    urlParams.delete("selCatId", $(this).val());
+    window.location.href = window.location.pathname + "?" + urlParams.toString();
+});
+$(".clear-filters").on('click', function () {
+    let urlParams = new URLSearchParams(window.location.search);
+    urlParams.delete("selFuncId");
+    urlParams.delete("selCatId");
+    window.location.href = window.location.pathname + "?" + urlParams.toString();
+});
 </script>
 
 </body>

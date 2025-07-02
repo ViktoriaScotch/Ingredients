@@ -1,8 +1,8 @@
 package ru.ingredients.controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.javatuples.LabelValue;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -14,6 +14,7 @@ import ru.ingredients.models.Ingredient;
 import ru.ingredients.models.Percent;
 import ru.ingredients.services.IngredientService;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -34,13 +35,23 @@ public class IngredientController {
     }
 
     @GetMapping("")
-    public String ingredients(Model model, @RequestParam(required = false) String q, HttpServletRequest request) {
-        Iterable<Ingredient> ingredients = ingredientService.getIngredients(q);
-        List<LabelValue<String, String>> ingredientsNameId = ingredientService.getIngredientsForAutocomplete();
+    public String ingredients(Model model, HttpServletRequest request,
+                              @RequestParam(defaultValue = "0") int page,
+                              @RequestParam(required = false) String search,
+                              @RequestParam(required = false) List<Long> selFuncId,
+                              @RequestParam(required = false) List<Long> selCatId) {
+        if (selFuncId == null) selFuncId = Collections.emptyList();
+        if (selCatId == null) selCatId = Collections.emptyList();
+        Page<Ingredient> ingredientPages = ingredientService.getIngredients(search, page, 20, selFuncId, selCatId);
 
-        model.addAttribute("ingredients", ingredients);
         model.addAttribute("isAdmin", request.isUserInRole("ROLE_ADMIN"));
-        model.addAttribute("ingredientsNameId", ingredientsNameId);
+        model.addAttribute("ingredientsNameId", ingredientService.getIngredientsForAutocomplete());
+        model.addAttribute("search", search);
+        model.addAttribute("ingredients", ingredientPages.getContent());
+        model.addAttribute("currentPage", ingredientPages.getNumber());
+        model.addAttribute("totalPages", ingredientPages.getTotalPages());
+        model.addAttribute("selFunc", ingredientService.getFuncById(selFuncId));
+        model.addAttribute("selCat", ingredientService.getCatById(selCatId));
         return "ingredients/ingredients";
     }
 

@@ -1,5 +1,7 @@
 package ru.ingredients.repo;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -7,14 +9,9 @@ import org.springframework.data.repository.query.Param;
 import ru.ingredients.models.Ingredient;
 
 import java.util.List;
+import java.util.Map;
 
 public interface IngredientRepository extends JpaRepository<Ingredient, Long> {
-
-    Ingredient findByInci(String inci);
-
-    Ingredient findByTradeName(String tradeName);
-
-    Ingredient findByOtherNames(String otherName);
 
     @Modifying
     @Query(
@@ -42,21 +39,29 @@ public interface IngredientRepository extends JpaRepository<Ingredient, Long> {
     Ingredient findByAllNames(@Param("name") String name);
 
     @Query(
-            value = "SELECT DISTINCT ingredient.* FROM (" +
-                    "SELECT inci, id FROM ingredient " +
-                    "UNION " +
-                    "SELECT trade_name, id FROM ingredient " +
-                    "UNION " +
-                    "SELECT other_names, ingredient_id FROM ingredient_other_names" +
-                    ") AS t " +
-                    "JOIN ingredient ON t.id=ingredient.id " +
-                    "WHERE LOWER(REGEXP_REPLACE(t.inci, '\\W+', '', 'g')) LIKE %:searchString%",
+            value = "SELECT DISTINCT ingredient.* " +
+                    "FROM ingredient " +
+                    "JOIN (" +
+                        "SELECT inci, id FROM ingredient " +
+                        "UNION " +
+                        "SELECT trade_name, id FROM ingredient " +
+                        "UNION " +
+                        "SELECT other_names, ingredient_id FROM ingredient_other_names" +
+                    ") AS t ON t.id=ingredient.id " +
+                    "LEFT JOIN ingredient_categories ic ON ingredient.id = ic.ingredients_id " +
+                    "LEFT JOIN ingredient_functions ifn ON ingredient.id = ifn.ingredients_id " +
+                    "WHERE LOWER(REGEXP_REPLACE(t.inci, '\\W+', '', 'g')) LIKE %:searchString% " +
+                    "AND (:categories IS NULL OR ic.categories_id IN (:categories)) " +
+                    "AND (:functions IS NULL OR ifn.functions_id IN (:functions))",
             nativeQuery = true
     )
-    List<Ingredient> searchIngredients(@Param("searchString") String searchString);
+    Page<Ingredient> searchIngredients(@Param("searchString") String searchString,
+                                       @Param("functions") List<Long> functions,
+                                       @Param("categories") List<Long> categories,
+                                       Pageable pageable);
 
     @Query(
-            value = "SELECT t.name, t.id FROM (" +
+            value = "SELECT t.name as label, t.id as value FROM (" +
                     "SELECT inci as name, id FROM ingredient " +
                     "UNION " +
                     "SELECT trade_name as name, id FROM ingredient " +
@@ -66,5 +71,5 @@ public interface IngredientRepository extends JpaRepository<Ingredient, Long> {
                     "JOIN ingredient ON t.id=ingredient.id ",
             nativeQuery = true
     )
-    List<String[]> getAllNamesId();
+    List<Map<String, String>> getAllNamesId();
 }

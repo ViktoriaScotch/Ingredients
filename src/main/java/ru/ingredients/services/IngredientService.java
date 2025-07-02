@@ -1,7 +1,9 @@
 package ru.ingredients.services;
 
-import org.javatuples.LabelValue;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.ingredients.models.Category;
 import ru.ingredients.models.Function;
@@ -11,8 +13,8 @@ import ru.ingredients.repo.FunctionRepository;
 import ru.ingredients.repo.IngredientRepository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 @Service
 public class IngredientService {
@@ -32,13 +34,26 @@ public class IngredientService {
         return this.categoryRepository.findAll();
     }
 
-    public List<LabelValue<String, String>> getIngredientsForAutocomplete() {
-        return ingredientRepository.getAllNamesId().stream().map(LabelValue::fromArray).collect(Collectors.toList());
+    public List<Function> getFuncById(List<Long> funcIds) {
+        return this.functionRepository.findAllById(funcIds);
     }
 
-    public Iterable<Ingredient> getIngredients(String search) {
-        return search == null || search.isEmpty() ? ingredientRepository.findAll() :
-                ingredientRepository.searchIngredients(search.toLowerCase().replaceAll("[^a-zA-Zа-яА-Я0-9]+", ""));
+    public List<Category> getCatById(List<Long> catIds) {
+        return this.categoryRepository.findAllById(catIds);
+    }
+
+    public List<Map<String, String>> getIngredientsForAutocomplete() {
+        return ingredientRepository.getAllNamesId();
+    }
+
+    public Page<Ingredient> getIngredients(String search, int pageNumber, int pageSize, List<Long> functions, List<Long> categories) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        if ((search == null || search.isEmpty()) && functions == null && categories == null) {
+            return ingredientRepository.findAll(pageable);
+        } else {
+            search = search == null ? "" : search.toLowerCase().replaceAll("[^a-zA-Zа-яА-Я0-9]+", "");
+            return ingredientRepository.searchIngredients(search, functions, categories, pageable);
+        }
     }
 
     public Ingredient findIngredientById(long id) {
