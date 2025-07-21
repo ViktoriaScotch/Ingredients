@@ -32,7 +32,7 @@
             </div>
 
             <h1 class="text-white">Добавление ингредиента</h1>
-            <form class="mt-4" th:object="${ingredient}" th:method="post">
+            <form class="mt-4" th:action="@{/ingredients/new}" th:object="${ingredient}" th:method="post">
                 <input type="text" th:field="*{inci}" placeholder="Введите наименование по INCI" class="form-control"><br>
 
                 <input type="text" th:field="*{tradeName}" placeholder="Введите торговое наименование" class="form-control"><br>

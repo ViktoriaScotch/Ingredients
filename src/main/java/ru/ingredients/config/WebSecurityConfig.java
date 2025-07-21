@@ -1,9 +1,11 @@
 package ru.ingredients.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,37 +15,41 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
+
+    @Value("${admin.name}")
+    private String adminName;
+
+    @Value("${admin.password}")
+    private String adminPassword;
+
     @Bean
-    protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
-        return http
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
                 .authorizeHttpRequests((requests) -> requests
-                .requestMatchers("/**")
-                    .permitAll()
-                .requestMatchers("/ingredients/{id}/edit", "/ingredients/new")
-                     .hasRole("ADMIN")
-                    .and())
-                .formLogin()
-                    .loginPage("/login")
-                    .permitAll()
-                    .and()
-                .logout()
-                    .permitAll()
-                    .and()
-                .csrf().disable()
-                .build();
+                        .requestMatchers("/ingredients/{id}/edit", "/ingredients/new").hasRole("ADMIN")
+                        .anyRequest().permitAll()
+                )
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/decoding"))
+                .formLogin((form) -> form
+                        .loginPage("/login")
+                        .permitAll()
+                )
+                .logout(LogoutConfigurer::permitAll);
+        return http.build();
     }
 
     @Bean
     protected InMemoryUserDetailsManager userDetailsService() {
         return new InMemoryUserDetailsManager(User
-                .withUsername("admin")
-                .password(encoder().encode("password"))
+                .withUsername(adminName)
+                .password(encoder().encode(adminPassword))
                 .roles("ADMIN")
                 .build());
     }
 
     @Bean
-    public PasswordEncoder encoder(){
+    public PasswordEncoder encoder() {
         return new BCryptPasswordEncoder();
     }
 }
