@@ -9,9 +9,14 @@ import jakarta.servlet.http.HttpServletRequest;
 @Controller
 public class MainController {
 
+    @GetMapping("/")
+    public String home() {
+        return "main/home";
+    }
+
     @GetMapping("/login")
     public String login(Model model, HttpServletRequest request) {
         model.addAttribute("isAuthorized", request.isUserInRole("ROLE_ADMIN"));
-        return "login/login";
+        return "main/login";
     }
 }

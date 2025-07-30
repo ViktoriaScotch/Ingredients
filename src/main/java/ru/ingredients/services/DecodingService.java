@@ -1,6 +1,5 @@
 package ru.ingredients.services;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.stereotype.Service;
@@ -10,7 +9,6 @@ import ru.ingredients.models.Ingredient;
 import ru.ingredients.repo.IngredientRepository;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class DecodingService {
@@ -18,20 +16,26 @@ public class DecodingService {
     @Autowired
     private IngredientRepository ingredientRepository;
 
+    private static final String REGEX_INSIDE_PARENTHESES = "\\(.+?\\)";
+    private static final String REGEX_NON_ALPHANUMERIC = "[^a-zA-Zа-яА-Я0-9]+";
+
     public List<Ingredient> findIng(String text) {
         List<String> ingText = new ArrayList<>();
         if (text != null) {
-            ingText = Arrays.stream(text.split(", ")).collect(Collectors.toList());
+            ingText = Arrays.stream(text.split(", ")).toList();
         }
         List<Ingredient> ingredients = new ArrayList<>();
         for (String ing : ingText) {
             Ingredient ingredient;
+            String ingLowerCase = ing.toLowerCase();
             try {
-                ingredient = ingredientRepository.findByAllNames(ing.toLowerCase()
-                        .replaceAll("\\(.+?\\)", "").replaceAll("[^a-zA-Zа-яА-Я0-9]+", ""));
+                ingredient = ingredientRepository.findByAllNames(ingLowerCase
+                        .replaceAll(REGEX_INSIDE_PARENTHESES, "")
+                        .replaceAll(REGEX_NON_ALPHANUMERIC, ""));
             } catch (IncorrectResultSizeDataAccessException e) {
-                ingredient = ingredientRepository.findByAllNames(
-                        StringUtils.substringBetween(ing.toLowerCase(), "(", ")").replaceAll("[^a-zA-Zа-яА-Я0-9]+", ""));
+                ingredient = ingredientRepository.findByAllNames(ingLowerCase
+                        .substring(ingLowerCase.indexOf('(') + 1, ingLowerCase.indexOf(')'))
+                        .replaceAll(REGEX_NON_ALPHANUMERIC, ""));
             }
             if (ingredient == null) {
                 ingredients.add(new Ingredient().setTradeName(ing));
@@ -46,14 +50,8 @@ public class DecodingService {
         Map<String, List<Ingredient>> ingByFunc = new HashMap<>();
         for (Ingredient ingredient : ingredients) {
             if (ingredient.getId() != null) {
-                for (String func : ingredient.getFunctions().stream().map(Function::getName).collect(Collectors.toList())) {
-                    if (ingByFunc.containsKey(func)) {
-                        List<Ingredient> elements = new ArrayList<>(ingByFunc.get(func));
-                        elements.add(ingredient);
-                        ingByFunc.put(func, elements);
-                    } else {
-                        ingByFunc.put(func, List.of(ingredient));
-                    }
+                for (Function func : ingredient.getFunctions()) {
+                    ingByFunc.computeIfAbsent(func.getName(), k -> new ArrayList<>()).add(ingredient);
                 }
             }
         }
@@ -64,18 +62,11 @@ public class DecodingService {
         Map<String, List<Ingredient>> ingByCat = new HashMap<>();
         for (Ingredient ingredient : ingredients) {
             if (ingredient.getId() != null) {
-                for (String cat : ingredient.getCategories().stream().map(Category::getName).collect(Collectors.toList())) {
-                    if (ingByCat.containsKey(cat)) {
-                        List<Ingredient> elements = new ArrayList<>(ingByCat.get(cat));
-                        elements.add(ingredient);
-                        ingByCat.put(cat, elements);
-                    } else {
-                        ingByCat.put(cat, List.of(ingredient));
-                    }
+                for (Category cat : ingredient.getCategories()) {
+                    ingByCat.computeIfAbsent(cat.getName(), k -> new ArrayList<>()).add(ingredient);
                 }
             }
         }
         return ingByCat;
     }
-
 }

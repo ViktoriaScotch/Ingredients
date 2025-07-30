@@ -16,7 +16,7 @@
     <header th:replace="blocks/header :: header"></header>
 
     <div class="container mt-5 text-center">
-        <form action="/" method="post">
+        <form action="/decoding" method="post">
             <textarea rows=5 name="text" class="form-control" th:text="${text}"></textarea><br>
             <p class="lead">
                 <button type="submit" class="btn btn-lg fw-bold border-white bg-white">Разобрать</button>
