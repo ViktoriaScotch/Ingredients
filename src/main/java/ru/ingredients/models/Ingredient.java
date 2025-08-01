@@ -31,9 +31,19 @@ public class Ingredient {
     private Set<String> otherNames = new HashSet<>();
 
     @ManyToMany
+    @JoinTable(
+            name = "ingredient_function",
+            joinColumns = @JoinColumn(name = "ingredient_id"),
+            inverseJoinColumns = @JoinColumn(name = "function_id")
+    )
     private Set<Function> functions = new HashSet<>();
 
     @ManyToMany
+    @JoinTable(
+            name = "ingredient_category",
+            joinColumns = @JoinColumn(name = "ingredient_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
     private Set<Category> categories = new HashSet<>();
 
     public Ingredient() {
