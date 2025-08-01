@@ -14,9 +14,6 @@ public class Category {
 
     private String description;
 
-    @ManyToMany(mappedBy="categories")
-    private Set<Ingredient> ingredients = new HashSet<>();
-
     public Category(){};
 
     public Category(Long id, String name, String description) {
@@ -47,13 +44,5 @@ public class Category {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public Set<Ingredient> getIngredients() {
-        return ingredients;
-    }
-
-    public void setIngredients(Set<Ingredient> ingredients) {
-        this.ingredients = ingredients;
     }
 }

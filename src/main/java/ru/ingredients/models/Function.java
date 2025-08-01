@@ -14,9 +14,6 @@ public class Function {
 
     private String description;
 
-    @ManyToMany(mappedBy="functions")
-    private Set<Ingredient> ingredients = new HashSet<>();
-
     public Function(){};
 
     public Function(Long id, String name, String description) {
@@ -47,13 +44,5 @@ public class Function {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public Set<Ingredient> getIngredients() {
-        return ingredients;
-    }
-
-    public void setIngredients(Set<Ingredient> ingredients) {
-        this.ingredients = ingredients;
     }
 }
