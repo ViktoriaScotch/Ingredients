@@ -3,8 +3,10 @@ package ru.ingredients.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.stereotype.Service;
-import ru.ingredients.models.Category;
-import ru.ingredients.models.Function;
+import ru.ingredients.dto.CategoryDTO;
+import ru.ingredients.dto.FunctionDTO;
+import ru.ingredients.dto.IngredientDTO;
+import ru.ingredients.dto.mapper.IngredientMapper;
 import ru.ingredients.models.Ingredient;
 import ru.ingredients.repo.IngredientRepository;
 
@@ -15,11 +17,13 @@ public class DecodingService {
 
     @Autowired
     private IngredientRepository ingredientRepository;
+    @Autowired
+    private IngredientMapper ingredientMapper;
 
     private static final String REGEX_INSIDE_PARENTHESES = "\\(.+?\\)";
     private static final String REGEX_NON_ALPHANUMERIC = "[^a-zA-Zа-яА-Я0-9]+";
 
-    public List<Ingredient> findIng(String text) {
+    public List<IngredientDTO> findIng(String text) {
         List<String> ingText = new ArrayList<>();
         if (text != null) {
             ingText = Arrays.stream(text.split(", ")).toList();
@@ -43,14 +47,14 @@ public class DecodingService {
                 ingredients.add(ingredient);
             }
         }
-        return ingredients;
+        return ingredients.stream().map(ingredientMapper::toDto).toList();
     }
 
-    public Map<String, List<Ingredient>> groupByFunc(List<Ingredient> ingredients) {
-        Map<String, List<Ingredient>> ingByFunc = new HashMap<>();
-        for (Ingredient ingredient : ingredients) {
+    public Map<String, List<IngredientDTO>> groupByFunc(List<IngredientDTO> ingredients) {
+        Map<String, List<IngredientDTO>> ingByFunc = new HashMap<>();
+        for (IngredientDTO ingredient : ingredients) {
             if (ingredient.getId() != null) {
-                for (Function func : ingredient.getFunctions()) {
+                for (FunctionDTO func : ingredient.getFunctions()) {
                     ingByFunc.computeIfAbsent(func.getName(), k -> new ArrayList<>()).add(ingredient);
                 }
             }
@@ -58,11 +62,11 @@ public class DecodingService {
         return ingByFunc;
     }
 
-    public Map<String, List<Ingredient>> groupByCat(List<Ingredient> ingredients) {
-        Map<String, List<Ingredient>> ingByCat = new HashMap<>();
-        for (Ingredient ingredient : ingredients) {
+    public Map<String, List<IngredientDTO>> groupByCat(List<IngredientDTO> ingredients) {
+        Map<String, List<IngredientDTO>> ingByCat = new HashMap<>();
+        for (IngredientDTO ingredient : ingredients) {
             if (ingredient.getId() != null) {
-                for (Category cat : ingredient.getCategories()) {
+                for (CategoryDTO cat : ingredient.getCategories()) {
                     ingByCat.computeIfAbsent(cat.getName(), k -> new ArrayList<>()).add(ingredient);
                 }
             }

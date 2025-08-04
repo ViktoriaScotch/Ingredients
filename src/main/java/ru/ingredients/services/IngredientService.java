@@ -5,9 +5,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ru.ingredients.models.Category;
-import ru.ingredients.models.Function;
-import ru.ingredients.models.Ingredient;
+import ru.ingredients.dto.CategoryDTO;
+import ru.ingredients.dto.FunctionDTO;
+import ru.ingredients.dto.IngredientDTO;
+import ru.ingredients.dto.mapper.CategoryMapper;
+import ru.ingredients.dto.mapper.FunctionMapper;
+import ru.ingredients.dto.mapper.IngredientMapper;
 import ru.ingredients.repo.CategoryRepository;
 import ru.ingredients.repo.FunctionRepository;
 import ru.ingredients.repo.IngredientRepository;
@@ -24,44 +27,50 @@ public class IngredientService {
     private FunctionRepository functionRepository;
     @Autowired
     private CategoryRepository categoryRepository;
+    @Autowired
+    private FunctionMapper functionMapper;
+    @Autowired
+    private CategoryMapper categoryMapper;
+    @Autowired
+    private IngredientMapper ingredientMapper;
 
 
-    public List<Function> getAllFunctions() {
-        return this.functionRepository.findAll();
+    public List<FunctionDTO> getAllFunctions() {
+        return this.functionRepository.findAll().stream().map(functionMapper::toDto).toList();
     }
 
-    public List<Category> getAllCategories() {
-        return this.categoryRepository.findAll();
+    public List<CategoryDTO> getAllCategories() {
+        return this.categoryRepository.findAll().stream().map(categoryMapper::toDto).toList();
     }
 
-    public List<Function> getFuncById(List<Long> funcIds) {
-        return this.functionRepository.findAllById(funcIds);
+    public List<FunctionDTO> getFuncById(List<Long> funcIds) {
+        return this.functionRepository.findAllById(funcIds).stream().map(functionMapper::toDto).toList();
     }
 
-    public List<Category> getCatById(List<Long> catIds) {
-        return this.categoryRepository.findAllById(catIds);
+    public List<CategoryDTO> getCatById(List<Long> catIds) {
+        return this.categoryRepository.findAllById(catIds).stream().map(categoryMapper::toDto).toList();
     }
 
     public List<Map<String, String>> getIngredientsForAutocomplete() {
         return ingredientRepository.getAllNamesId();
     }
 
-    public Page<Ingredient> getIngredients(String search, int pageNumber, int pageSize, List<Long> functions, List<Long> categories) {
+    public Page<IngredientDTO> getIngredients(String search, int pageNumber, int pageSize, List<Long> functions, List<Long> categories) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         if ((search == null || search.isEmpty()) && functions == null && categories == null) {
-            return ingredientRepository.findAll(pageable);
+            return ingredientRepository.findAll(pageable).map(ingredientMapper::toDto);
         } else {
             search = search == null ? "" : search.toLowerCase().replaceAll("[^a-zA-Zа-яА-Я0-9]+", "");
-            return ingredientRepository.searchIngredients(search, functions, categories, pageable);
+            return ingredientRepository.searchIngredients(search, functions, categories, pageable).map(ingredientMapper::toDto);
         }
     }
 
-    public Ingredient findIngredientById(long id) {
-        return ingredientRepository.findById(id).orElseThrow();
+    public IngredientDTO findIngredientById(long id) {
+        return ingredientRepository.findById(id).map(ingredientMapper::toDto).orElseThrow();
     }
 
-    public void saveIngredient(Ingredient ingredient) {
-        ingredientRepository.save(ingredient);
+    public void saveIngredient(IngredientDTO ingredient) {
+        ingredientRepository.save(ingredientMapper.toEntity(ingredient));
     }
 
     public void deleteIngredient(long id) {

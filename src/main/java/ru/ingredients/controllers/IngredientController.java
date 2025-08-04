@@ -8,10 +8,10 @@ import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import ru.ingredients.models.Category;
-import ru.ingredients.models.Function;
-import ru.ingredients.models.Ingredient;
-import ru.ingredients.models.Percent;
+import ru.ingredients.dto.CategoryDTO;
+import ru.ingredients.dto.FunctionDTO;
+import ru.ingredients.dto.IngredientDTO;
+import ru.ingredients.dto.PercentDTO;
 import ru.ingredients.services.IngredientService;
 
 import java.util.Collections;
@@ -25,12 +25,12 @@ public class IngredientController {
     private IngredientService ingredientService;
 
     @ModelAttribute("allFunctions")
-    public List<Function> allFunctions() {
+    public List<FunctionDTO> allFunctions() {
         return ingredientService.getAllFunctions();
     }
 
     @ModelAttribute("allCategories")
-    public List<Category> allCategories() {
+    public List<CategoryDTO> allCategories() {
         return ingredientService.getAllCategories();
     }
 
@@ -42,7 +42,7 @@ public class IngredientController {
                               @RequestParam(required = false) List<Long> selCatId) {
         if (selFuncId == null) selFuncId = Collections.emptyList();
         if (selCatId == null) selCatId = Collections.emptyList();
-        Page<Ingredient> ingredientPages = ingredientService.getIngredients(search, page, 20, selFuncId, selCatId);
+        Page<IngredientDTO> ingredientPages = ingredientService.getIngredients(search, page, 20, selFuncId, selCatId);
 
         model.addAttribute("isAdmin", request.isUserInRole("ROLE_ADMIN"));
         model.addAttribute("ingredientsNameId", ingredientService.getIngredientsForAutocomplete());
@@ -56,25 +56,24 @@ public class IngredientController {
     }
 
     @GetMapping("/new")
-    public String ingredientsAdd(@ModelAttribute("ingredient") Ingredient ingredient) {
+    public String ingredientsAdd(@ModelAttribute("ingredient") IngredientDTO ingredient) {
         return "ingredients/ingredients-new";
     }
 
     @RequestMapping(value = "/new", params = {"addPercent"})
-    public String addPercent(@ModelAttribute("ingredient") Ingredient ingredient) {
-        ingredient.getPercents().add(new Percent());
+    public String addPercent(@ModelAttribute("ingredient") IngredientDTO ingredient) {
+        ingredient.getPercents().add(new PercentDTO());
         return "ingredients/ingredients-new";
     }
 
     @RequestMapping(value = "/new", params = {"removePercent"})
-    public String removePercent(@ModelAttribute("ingredient") Ingredient ingredient, final HttpServletRequest req) {
-        final int percentIndex = Integer.parseInt(req.getParameter("removePercent"));
-        ingredient.getPercents().remove(percentIndex);
+    public String removePercent(@ModelAttribute("ingredient") IngredientDTO ingredient, int removePercent) {
+        ingredient.getPercents().remove(removePercent);
         return "ingredients/ingredients-new";
     }
 
     @PostMapping("/new")
-    public String saveIngredient(@ModelAttribute("ingredient") Ingredient ingredient, BindingResult bindingResult, final ModelMap model) {
+    public String saveIngredient(@ModelAttribute("ingredient") IngredientDTO ingredient, BindingResult bindingResult, final ModelMap model) {
         if (bindingResult.hasErrors()) {
             return "ingredients/ingredients-new";
         }
@@ -85,7 +84,7 @@ public class IngredientController {
 
     @GetMapping("/{id}")
     public String ingredientMore(@PathVariable(value = "id") long id, Model model, HttpServletRequest req) {
-        Ingredient ing;
+        IngredientDTO ing;
         try {
             ing = ingredientService.findIngredientById(id);
         } catch (NoSuchElementException e) {
@@ -104,8 +103,8 @@ public class IngredientController {
     }
 
     @GetMapping("/{id}/edit")
-    public String ingredientEdit(@PathVariable(value = "id") long id, Model model, HttpServletRequest req) {
-        Ingredient ing;
+    public String ingredientEdit(@PathVariable(value = "id") long id, Model model) {
+        IngredientDTO ing;
         try {
             ing = ingredientService.findIngredientById(id);
         } catch (NoSuchElementException e) {
@@ -116,20 +115,19 @@ public class IngredientController {
     }
 
     @RequestMapping(value = "/{id}/edit", params = {"addPercent"})
-    public String addPercentEdit(final Ingredient ing) {
-        ing.getPercents().add(new Percent());
+    public String addPercentEdit(@ModelAttribute("ingredient") IngredientDTO ing) {
+        ing.getPercents().add(new PercentDTO());
         return "ingredients/ingredients-edit";
     }
 
     @RequestMapping(value = "/{id}/edit", params = {"removePercent"})
-    public String removePercentEdit(final Ingredient ing, final HttpServletRequest req) {
-        final int percentIndex = Integer.parseInt(req.getParameter("removePercent"));
-        ing.getPercents().remove(percentIndex);
+    public String removePercentEdit(@ModelAttribute("ingredient") IngredientDTO ing, int removePercent) {
+        ing.getPercents().remove(removePercent);
         return "ingredients/ingredients-edit";
     }
 
     @PatchMapping(value = "/{id}/edit")
-    public String ingredientsUpdate(final Ingredient ing, final BindingResult bindingResult) {
+    public String ingredientsUpdate(@ModelAttribute("ingredient") IngredientDTO ing, final BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return "ingredients/ingredients-edit";
         }
