@@ -1,6 +1,5 @@
 package ru.ingredients.controllers;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
@@ -35,7 +34,7 @@ public class IngredientController {
     }
 
     @GetMapping("")
-    public String ingredients(Model model, HttpServletRequest request,
+    public String ingredients(Model model,
                               @RequestParam(defaultValue = "0") int page,
                               @RequestParam(required = false) String search,
                               @RequestParam(required = false) List<Long> selFuncId,
@@ -44,7 +43,6 @@ public class IngredientController {
         if (selCatId == null) selCatId = Collections.emptyList();
         Page<IngredientDTO> ingredientPages = ingredientService.getIngredients(search, page, 20, selFuncId, selCatId);
 
-        model.addAttribute("isAdmin", request.isUserInRole("ROLE_ADMIN"));
         model.addAttribute("ingredientsNameId", ingredientService.getIngredientsForAutocomplete());
         model.addAttribute("search", search);
         model.addAttribute("ingredients", ingredientPages.getContent());
@@ -83,7 +81,7 @@ public class IngredientController {
     }
 
     @GetMapping("/{id}")
-    public String ingredientMore(@PathVariable(value = "id") long id, Model model, HttpServletRequest req) {
+    public String ingredientMore(@PathVariable(value = "id") long id, Model model) {
         IngredientDTO ing;
         try {
             ing = ingredientService.findIngredientById(id);
@@ -91,8 +89,6 @@ public class IngredientController {
             return "redirect:/ingredients";
         }
         model.addAttribute("ing", ing);
-        model.addAttribute("isAdmin", req.isUserInRole("ROLE_ADMIN"));
-        model.addAttribute("referer", req.getHeader("Referer"));
         return "ingredients/ingredients-about";
     }
 

@@ -1,5 +1,6 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org" lang="ru" class="h-100" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" lang="ru" class="h-100"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.thymeleaf.org ">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
@@ -17,7 +18,7 @@
     <header th:replace="blocks/header :: header"></header>
 
     <div class="container mt-5 mb-3">
-        <a th:href="${referer}" class="btn btn-outline-secondary">
+        <a href="javascript:history.back()" class="btn btn-outline-secondary">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left"
                  viewBox="0 2 16 16">
                 <path fill-rule="evenodd"
@@ -36,19 +37,18 @@
 
             <p th:if="${!ing.functions.empty}"><b>Функции: </b><span th:text="${#strings.arrayJoin(ing.functions.![name],', ')}"></span></p>
 
-            <p th:if="${!ing.functions.empty}"><b>Классы активов: </b><span th:text="${#strings.arrayJoin(ing.categories.![name],', ')}"></span></p>
+            <p th:if="${!ing.categories.empty}"><b>Классы активов: </b><span th:text="${#strings.arrayJoin(ing.categories.![name],', ')}"></span></p>
 
             <p th:if="${!ing.description.empty}"><b>Описание: </b><span th:text="${ing.description}"></span></p>
 
             <p th:if="${!ing.percents.empty}"><b>Эффективные проценты ввода: </b>
             <div th:each="percent : ${ing.percents}">
-                    <b>от </b><span th:text="${percent.min}"></span>
-                    <b>до </b><span th:text="${percent.max}"></span>
-                    <b>% </b><span th:if="${!percent.comment.empty}" th:text="' — ' + ${percent.comment}"></span>
-                </p>
+                <b>от </b><span th:text="${percent.min}"></span>
+                <b>до </b><span th:text="${percent.max}"></span>
+                <b>% </b><span th:if="${!percent.comment.empty}" th:text="' — ' + ${percent.comment}"></span>
             </div>
 
-            <form th:if="${isAdmin}" th:action="'/ingredients/' + ${ing.id}" th:method="delete">
+            <form sec:authorize="hasRole('ADMIN')" th:action="'/ingredients/' + ${ing.id}" th:method="delete">
                 <a th:href="'/ingredients/' + ${ing.id} + '/edit'" class="btn btn-secondary">Редактировать</a>
                 <button class="btn btn-secondary" type="submit">Удалить</button>
             </form>

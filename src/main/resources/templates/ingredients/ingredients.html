@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org" lang="ru" class="h-100">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" lang="ru" class="h-100">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -120,7 +120,7 @@
             </div>
 
             <!-- Кнопка добавления ингредиента для админа -->
-            <p th:if="${isAdmin}" class="lead">
+            <p sec:authorize="hasRole('ADMIN')" class="lead">
                 <a href="/ingredients/new" class="btn btn-lg fw-bold border-white bg-white mt-4">Добавить
                     ингредиент</a>
             </p>
