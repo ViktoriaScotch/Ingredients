@@ -11,13 +11,16 @@ import ru.ingredients.dto.IngredientDTO;
 import ru.ingredients.dto.mapper.CategoryMapper;
 import ru.ingredients.dto.mapper.FunctionMapper;
 import ru.ingredients.dto.mapper.IngredientMapper;
+import ru.ingredients.models.Ingredient;
 import ru.ingredients.repo.CategoryRepository;
 import ru.ingredients.repo.FunctionRepository;
 import ru.ingredients.repo.IngredientRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 public class IngredientService {
@@ -52,7 +55,11 @@ public class IngredientService {
     }
 
     public List<Map<String, String>> getIngredientsForAutocomplete() {
-        return ingredientRepository.getAllNamesId();
+        return ingredientRepository.getIngredientsForAutocomplete();
+    }
+
+    public IngredientDTO getIngredientById(long id) {
+        return ingredientRepository.findById(id).map(ingredientMapper::toDto).orElseThrow();
     }
 
     public Page<IngredientDTO> getIngredients(String search, int pageNumber, int pageSize, List<Long> functions, List<Long> categories) {
@@ -65,17 +72,30 @@ public class IngredientService {
         }
     }
 
-    public IngredientDTO findIngredientById(long id) {
-        return ingredientRepository.findById(id).map(ingredientMapper::toDto).orElseThrow();
-    }
+    public void saveIngredient(IngredientDTO ingToSave) {
+        List<Ingredient> existingIng = getIngWithSameNames(ingToSave);
 
-    public void saveIngredient(IngredientDTO ingredient) {
-        ingredientRepository.save(ingredientMapper.toEntity(ingredient));
+        if (!existingIng.isEmpty()) {
+            String ingIds = existingIng.stream().map(Ingredient::getId).map(String::valueOf).collect(Collectors.joining(", "));
+            throw new IllegalArgumentException("Перепроверьте все указанные наименования, есть совпадения с id " + ingIds);
+        }
+
+        ingredientRepository.save(ingredientMapper.toEntity(ingToSave));
     }
 
     public void deleteIngredient(long id) {
         if (ingredientRepository.existsById(id)) {
             ingredientRepository.deleteById(id);
         } else throw new NoSuchElementException();
+    }
+
+    public List<Ingredient> getIngWithSameNames(IngredientDTO ingToSave) {
+        List<String> allNames = new ArrayList<>(ingToSave.getOtherNames());
+        allNames.add(ingToSave.getInci());
+        allNames.add(ingToSave.getTradeName());
+
+        List<Ingredient> existingIng = ingredientRepository.findByAllNames(allNames);
+        existingIng.removeIf(i -> i.getId().equals(ingToSave.getId()));
+        return existingIng;
     }
 }

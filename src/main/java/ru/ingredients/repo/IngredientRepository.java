@@ -31,6 +31,24 @@ public interface IngredientRepository extends JpaRepository<Ingredient, Long> {
     Ingredient findByAllNames(@Param("name") String name);
 
     @Query(
+            value = "SELECT DISTINCT ingredient.* FROM (" +
+                    "SELECT inci, id FROM ingredient " +
+                    "UNION " +
+                    "SELECT trade_name, id FROM ingredient " +
+                    "UNION " +
+                    "SELECT other_names, ingredient_id FROM ingredient_other_names" +
+                    ") AS t " +
+                    "JOIN ingredient ON t.id=ingredient.id " +
+                    "WHERE LOWER(REGEXP_REPLACE(" +
+                    "               REGEXP_REPLACE(" +
+                    "                           t.inci, " +
+                    "               '\\(.+?\\)','','g'), " +
+                    "           '\\W+', '', 'g')) IN :name",
+            nativeQuery = true
+    )
+    List<Ingredient> findByAllNames(@Param("name") List<String> name);
+
+    @Query(
             value = "SELECT DISTINCT ingredient.* " +
                     "FROM ingredient " +
                     "JOIN (" +
@@ -63,5 +81,5 @@ public interface IngredientRepository extends JpaRepository<Ingredient, Long> {
                     "JOIN ingredient ON t.id=ingredient.id ",
             nativeQuery = true
     )
-    List<Map<String, String>> getAllNamesId();
+    List<Map<String, String>> getIngredientsForAutocomplete();
 }

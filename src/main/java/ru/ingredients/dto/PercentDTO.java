@@ -1,9 +1,16 @@
 package ru.ingredients.dto;
 
-import java.util.Objects;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import ru.ingredients.validation.MinLessThanMax;
 
+@MinLessThanMax
 public class PercentDTO {
+    @Min(value = 0, message = "Процент не может быть меньше 0")
+    @Max(value = 100, message = "Процент не может быть больше 100")
     private double min;
+    @Min(value = 0, message = "Процент не может быть меньше 0")
+    @Max(value = 100, message = "Процент не может быть больше 100")
     private double max;
     private String comment;
 
