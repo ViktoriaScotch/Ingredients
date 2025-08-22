@@ -1,4 +1,4 @@
-package ru.ingredients.controllers;
+package ru.ingredients.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

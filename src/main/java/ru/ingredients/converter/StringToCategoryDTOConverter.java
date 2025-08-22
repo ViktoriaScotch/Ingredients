@@ -1,12 +1,12 @@
-package ru.ingredients.dto.converter;
+package ru.ingredients.converter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import ru.ingredients.dto.CategoryDTO;
-import ru.ingredients.dto.mapper.CategoryMapper;
-import ru.ingredients.repo.CategoryRepository;
+import ru.ingredients.mapper.CategoryMapper;
+import ru.ingredients.repository.CategoryRepository;
 
 @Component
 public class StringToCategoryDTOConverter implements Converter<String, CategoryDTO> {

@@ -1,9 +1,9 @@
-package ru.ingredients.dto.mapper;
+package ru.ingredients.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import ru.ingredients.dto.IngredientDTO;
-import ru.ingredients.models.Ingredient;
+import ru.ingredients.entity.Ingredient;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE,
         uses = {FunctionMapper.class, CategoryMapper.class, PercentMapper.class})

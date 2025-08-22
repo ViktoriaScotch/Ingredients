@@ -1,8 +1,8 @@
-package ru.ingredients.dto.mapper;
+package ru.ingredients.mapper;
 
 import org.mapstruct.Mapper;
 import ru.ingredients.dto.FunctionDTO;
-import ru.ingredients.models.Function;
+import ru.ingredients.entity.Function;
 
 @Mapper(componentModel = "spring")
 public interface FunctionMapper {

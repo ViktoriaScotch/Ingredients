@@ -1,4 +1,4 @@
-package ru.ingredients.controllers;
+package ru.ingredients.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,7 @@ import ru.ingredients.dto.CategoryDTO;
 import ru.ingredients.dto.FunctionDTO;
 import ru.ingredients.dto.IngredientDTO;
 import ru.ingredients.dto.PercentDTO;
-import ru.ingredients.services.IngredientService;
+import ru.ingredients.service.IngredientService;
 
 import java.util.Collections;
 import java.util.List;

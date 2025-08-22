@@ -1,8 +1,8 @@
-package ru.ingredients.dto.mapper;
+package ru.ingredients.mapper;
 
 import org.mapstruct.Mapper;
 import ru.ingredients.dto.CategoryDTO;
-import ru.ingredients.models.Category;
+import ru.ingredients.entity.Category;
 
 @Mapper(componentModel = "spring")
 public interface CategoryMapper {

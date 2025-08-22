@@ -1,9 +1,9 @@
-package ru.ingredients.dto.mapper;
+package ru.ingredients.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import ru.ingredients.dto.PercentDTO;
-import ru.ingredients.models.Percent;
+import ru.ingredients.entity.Percent;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface PercentMapper {

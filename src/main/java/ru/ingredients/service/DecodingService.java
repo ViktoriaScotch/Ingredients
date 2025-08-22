@@ -1,4 +1,4 @@
-package ru.ingredients.services;
+package ru.ingredients.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -6,9 +6,9 @@ import org.springframework.stereotype.Service;
 import ru.ingredients.dto.CategoryDTO;
 import ru.ingredients.dto.FunctionDTO;
 import ru.ingredients.dto.IngredientDTO;
-import ru.ingredients.dto.mapper.IngredientMapper;
-import ru.ingredients.models.Ingredient;
-import ru.ingredients.repo.IngredientRepository;
+import ru.ingredients.mapper.IngredientMapper;
+import ru.ingredients.entity.Ingredient;
+import ru.ingredients.repository.IngredientRepository;
 
 import java.util.*;
 

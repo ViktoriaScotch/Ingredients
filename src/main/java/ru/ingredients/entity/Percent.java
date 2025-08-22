@@ -1,4 +1,4 @@
-package ru.ingredients.models;
+package ru.ingredients.entity;
 
 import jakarta.persistence.*;
 
