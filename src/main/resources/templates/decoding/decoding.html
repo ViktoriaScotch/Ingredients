@@ -13,10 +13,10 @@
 <body class="d-flex h-100 text-start text-white bg-dark">
 
 <div class="container d-flex w-100 h-100 p-3 mx-auto flex-column">
-    <header th:replace="blocks/header :: header"></header>
+    <header th:replace="~{blocks/header}"></header>
 
     <div class="container mt-5 text-center">
-        <form action="/decoding" method="post">
+        <form th:action="@{/decoding}" th:method="post">
             <textarea rows=5 name="text" class="form-control" th:text="${text}"></textarea><br>
             <p class="lead">
                 <button type="submit" class="btn btn-lg fw-bold border-white bg-white">Разобрать</button>
@@ -98,7 +98,7 @@
     </div>
 
 
-    <footer th:replace="blocks/footer :: footer"></footer>
+    <footer th:replace="~{blocks/footer}"></footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"

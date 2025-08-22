@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" lang="ru" class="h-100">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ru" class="h-100">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,11 +22,11 @@
 <body class="d-flex h-100 text-center text-white bg-dark">
 
 <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
-    <header th:replace="blocks/header :: header"></header>
+    <header th:replace="~{blocks/header}"></header>
 
     <div class="container mt-5 w-80">
         <h1>Ингредиенты</h1><br>
-        <form action="/ingredients" method="get" class="w-100">
+        <form th:action="@{/ingredients}" th:method="get" class="w-100">
 
             <!-- Поле поиска -->
             <div class="d-flex justify-content-center">
@@ -167,7 +167,7 @@
         </form>
     </div>
 
-    <footer th:replace="blocks/footer :: footer"></footer>
+    <footer th:replace="~{blocks/footer}"></footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"

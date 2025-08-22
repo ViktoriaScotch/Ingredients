@@ -15,7 +15,7 @@
 <body class="d-flex h-100 text-white bg-dark">
 
 <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
-    <header th:replace="blocks/header :: header"></header>
+    <header th:replace="~{blocks/header}"></header>
 
     <div class="container mt-5 mb-3">
         <a href="javascript:history.back()" class="btn btn-outline-secondary">
@@ -79,7 +79,7 @@
         </div>
     </div>
 
-    <footer th:replace="blocks/footer :: footer"></footer>
+    <footer th:replace="~{blocks/footer}"></footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
