@@ -13,11 +13,11 @@
 <body class="d-flex h-100 text-center text-white bg-dark">
 
 <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column align-items-center">
-    <header th:replace="blocks/header :: header"></header>
+    <header th:replace="~{blocks/header}"></header>
 
     <main class="mt-auto w-50">
         <h1>Введите состав:</h1><br>
-        <form action="/decoding" method="post">
+        <form th:action="@{/decoding}" th:method="post">
             <textarea rows=5 name="text" class="form-control"></textarea><br>
             <p class="lead">
                 <button type="submit" class="btn btn-lg fw-bold border-white bg-white">Разобрать</button>
@@ -25,7 +25,7 @@
         </form>
     </main>
 
-    <footer th:replace="blocks/footer :: footer"></footer>
+    <footer th:replace="~{blocks/footer}"></footer>
 </div>
 </body>
 </html>
